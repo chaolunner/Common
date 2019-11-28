@@ -1,6 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
+using System;
 
 namespace Common
 {
@@ -8,7 +8,7 @@ namespace Common
     {
         private byte[] data = new byte[MaxLength];
         private int startIndex = 0;
-        private const int MaxLength = 8 * 1024;
+        private const int MaxLength = 1024;
         private const string MessagePackageTooLargeError = "Message package too large error! [{0}KB/{1}KB]";
 
         public byte[] Data
