@@ -4,7 +4,7 @@ namespace Common
 {
     public static class MessagePackUtility
     {
-        public static MessagePackSerializerOptions LZ4Standard = MessagePackSerializer.DefaultOptions.WithLZ4Compression(true);
+        public static MessagePackSerializerOptions LZ4Standard = MessagePackSerializer.DefaultOptions.WithCompression(MessagePackCompression.Lz4Block);
 
         public static byte[] Serialize<T>(T obj, bool lz4 = true)
         {
