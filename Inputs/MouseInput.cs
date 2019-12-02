@@ -11,8 +11,8 @@ namespace Common
         [Key(1)]
         public FixVector2 ScrollDelta;
         [Key(2)]
-        public FixVector3 Position;
+        public FixVector2 Delta;
         [Key(3)]
-        public FixVector3 Delta;
+        public FixVector3 Position;
     }
 }
