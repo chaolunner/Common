@@ -15,8 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.0.270-rc" />
-    <PackageReference Include="MessagePackAnalyzer" Version="2.0.270-rc" />
+    <PackageReference Include="MessagePack" Version="2.0.299-rc" />
+    <PackageReference Include="MessagePackAnalyzer" Version="2.0.299-rc" />
   </ItemGroup>
 
 </Project>
