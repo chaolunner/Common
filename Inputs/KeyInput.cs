@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using MessagePack;
 
 namespace Common
@@ -8,6 +7,6 @@ namespace Common
     public class KeyInput : IInput
     {
         [Key(0)]
-        public List<KeyCode> KeyCodes;
+        public List<int> KeyCodes;
     }
 }
