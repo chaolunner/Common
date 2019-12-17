@@ -16,7 +16,7 @@ namespace Common
 
         private void BeginReceive()
         {
-            if (socket != null && socket.Connected)
+            if (IsConnected)
             {
                 socket.BeginReceive(asyncReceive.Buffer, asyncReceive.Offset, asyncReceive.Size, SocketFlags.None, ReceiveCallback, null);
             }
@@ -26,9 +26,14 @@ namespace Common
             }
         }
 
+        public override bool IsConnected
+        {
+            get { return socket != null && socket.Connected; }
+        }
+
         public override void Send(byte[] buffer)
         {
-            if (socket != null && socket.Connected)
+            if (IsConnected)
             {
                 socket.Send(buffer);
             }
@@ -41,7 +46,7 @@ namespace Common
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            if (socket != null)
+            if (IsConnected)
             {
                 int count = socket.EndReceive(ar);
                 asyncReceive.EndReceive(count);

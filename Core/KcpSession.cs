@@ -36,11 +36,13 @@ namespace Common
         private KcpCallback kcpCallback;
         private AsyncReceive asyncReceive;
         private Kcp kcp;
-        private Socket socket;
+        private Socket tcpSocket;
+        private Socket udpSocket;
         private const int conv = 0;
 
         public KcpSession(Socket socket, AsyncReceive asyncReceive)
         {
+            tcpSocket = socket;
             Connect(socket.RemoteEndPoint);
             this.asyncReceive = asyncReceive;
         }
@@ -56,8 +58,8 @@ namespace Common
             kcpCallback.OnReceive += OnReceive;
             kcpCallback.OnOutput += OnOutput;
 
-            socket = new Socket(endPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            socket.Connect(endPoint);
+            udpSocket = new Socket(endPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            udpSocket.Connect(endPoint);
         }
 
         private void OnReceive(byte[] buffer)
@@ -73,18 +75,15 @@ namespace Common
 
         private void OnOutput(Memory<byte> buffer)
         {
-            if (socket != null)
+            if (IsConnected)
             {
-                socket.Send(buffer.ToArray());
+                udpSocket.Send(buffer.ToArray());
             }
         }
 
         public void Update()
         {
-            if (socket == null)
-            {
-                return;
-            }
+            if (!IsConnected) { return; }
 
             kcp.Update(DateTime.UtcNow);
 
@@ -94,7 +93,7 @@ namespace Common
                 try
                 {
                     var data = new byte[Message.MaxSize];
-                    int size = socket.Receive(data, 0, Message.MaxSize, SocketFlags.None);
+                    int size = udpSocket.Receive(data, 0, Message.MaxSize, SocketFlags.None);
                     if (size > 0)
                     {
                         kcp.Input(data);
@@ -116,6 +115,11 @@ namespace Common
             } while (len > 0);
         }
 
+        public override bool IsConnected
+        {
+            get { return tcpSocket != null && udpSocket != null && tcpSocket.Connected && udpSocket.Connected; }
+        }
+
         public override void Send(byte[] buffer)
         {
             kcp.Send(buffer);
@@ -127,11 +131,12 @@ namespace Common
             {
                 try
                 {
-                    while (true)
+                    while (IsConnected)
                     {
                         Update();
                         await Task.Delay(5);
                     }
+                    Close();
                 }
                 catch (Exception e)
                 {
@@ -142,10 +147,15 @@ namespace Common
 
         public override void Close()
         {
-            if (socket != null)
+            if (tcpSocket != null)
             {
-                socket.Close();
-                socket = null;
+                tcpSocket.Close();
+                tcpSocket = null;
+            }
+            if (udpSocket != null)
+            {
+                udpSocket.Close();
+                udpSocket = null;
             }
         }
     }
