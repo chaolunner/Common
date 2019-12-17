@@ -41,15 +41,14 @@ namespace Common
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            try
+            if (socket != null)
             {
                 int count = socket.EndReceive(ar);
                 asyncReceive.EndReceive(count);
                 BeginReceive();
             }
-            catch (Exception e)
+            else
             {
-                ConsoleUtility.WriteLine(e, ConsoleColor.Red);
                 asyncReceive.EndReceive(0);
             }
         }

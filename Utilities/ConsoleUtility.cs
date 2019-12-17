@@ -6,7 +6,7 @@ namespace Common
     {
         public static void WriteLine(Exception e, ConsoleColor color = ConsoleColor.White)
         {
-            WriteLine(e.ToString());
+            WriteLine(e.ToString(), color);
         }
 
         public static void WriteLine(string msg, ConsoleColor color = ConsoleColor.White)
