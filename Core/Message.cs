@@ -6,9 +6,10 @@ namespace Common
 {
     public class Message
     {
-        private byte[] data = new byte[MaxLength];
+        public const int MaxSize = 1024;
+
+        private byte[] data = new byte[MaxSize];
         private int startIndex = 0;
-        private const int MaxLength = 1024;
         private const string MessagePackageTooLargeError = "Message package too large error! [{0}KB/{1}KB]";
 
         public byte[] Data
@@ -56,9 +57,9 @@ namespace Common
             int length = requestCodeBytes.Length + dataBytes.Length;
             byte[] lengthBytes = BitConverter.GetBytes(length);
             int totalLength = length + lengthBytes.Length;
-            if (totalLength > MaxLength)
+            if (totalLength > MaxSize)
             {
-                ConsoleUtility.WriteLine(string.Format(MessagePackageTooLargeError, (totalLength / 1024f).ToString("F2"), (MaxLength / 1024f).ToString("F2")), ConsoleColor.Red);
+                ConsoleUtility.WriteLine(string.Format(MessagePackageTooLargeError, (totalLength / 1024f).ToString("F2"), (MaxSize / 1024f).ToString("F2")), ConsoleColor.Red);
             }
             return lengthBytes.Concat(requestCodeBytes).Concat(dataBytes).ToArray();
         }
