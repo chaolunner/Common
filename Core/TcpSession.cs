@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using System.Net;
 using System;
 
 namespace Common
@@ -9,9 +8,9 @@ namespace Common
         private Socket socket;
         private AsyncReceive asyncReceive;
 
-        public TcpSession(AsyncReceive asyncReceive)
+        public TcpSession(Socket socket)
         {
-            this.asyncReceive = asyncReceive;
+            this.socket = socket;
         }
 
         private void BeginReceive()
@@ -45,13 +44,6 @@ namespace Common
             get { return socket != null && socket.Connected; }
         }
 
-        public override Socket Bind(IPEndPoint ipEndPoint)
-        {
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Bind(ipEndPoint);
-            return socket;
-        }
-
         public override void Send(byte[] buffer)
         {
             if (IsConnected)
@@ -60,8 +52,9 @@ namespace Common
             }
         }
 
-        public override void Receive()
+        public override void Receive(AsyncReceive asyncReceive)
         {
+            this.asyncReceive = asyncReceive;
             BeginReceive();
         }
 

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Buffers;
-using System.Net;
 using System;
 
 namespace Common
@@ -41,11 +40,8 @@ namespace Common
         private const int conv = 1;
         private const string KcpSendError = "kcp send error";
 
-        public KcpSession(AsyncReceive asyncReceive)
+        public KcpSession()
         {
-            this.asyncReceive = asyncReceive;
-            kcpAsyncReceive = new AsyncReceive(new Message(), ReceiveCallback);
-
             kcpCallback = new KcpCallback();
             kcp = new Kcp(conv, kcpCallback);
             kcp.NoDelay(1, 10, 2, 1);
@@ -134,13 +130,6 @@ namespace Common
             get { return socket != null && kcp != null && socket.Connected; }
         }
 
-        public override Socket Bind(IPEndPoint ipEndPoint)
-        {
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.Bind(ipEndPoint);
-            return socket;
-        }
-
         public override void Send(byte[] buffer)
         {
             if (IsConnected)
@@ -152,8 +141,11 @@ namespace Common
             }
         }
 
-        public override void Receive()
+        public override void Receive(AsyncReceive asyncReceive)
         {
+            this.asyncReceive = asyncReceive;
+            kcpAsyncReceive = new AsyncReceive(new Message(), ReceiveCallback);
+
             BeginReceive();
 
             Task.Run(async () =>
