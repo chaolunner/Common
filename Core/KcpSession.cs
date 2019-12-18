@@ -35,23 +35,17 @@ namespace Common
     {
         private Kcp kcp;
         private KcpCallback kcpCallback;
-        private Socket tcpSocket;
-        private Socket udpSocket;
-        private AsyncReceive tcpAsyncReceive;
-        private AsyncReceive udpAsyncReceive;
-        private const int conv = 0;
+        private Socket socket;
+        private AsyncReceive asyncReceive;
+        private AsyncReceive kcpAsyncReceive;
+        private const int conv = 1;
         private const string KcpSendError = "kcp send error";
 
-        public KcpSession(Socket socket, AsyncReceive asyncReceive)
+        public KcpSession(AsyncReceive asyncReceive)
         {
-            tcpSocket = socket;
-            tcpAsyncReceive = asyncReceive;
-            Connect(socket.RemoteEndPoint);
-            udpAsyncReceive = new AsyncReceive(new Message(), ReceiveCallback);
-        }
+            this.asyncReceive = asyncReceive;
+            kcpAsyncReceive = new AsyncReceive(new Message(), ReceiveCallback);
 
-        private void Connect(EndPoint endPoint)
-        {
             kcpCallback = new KcpCallback();
             kcp = new Kcp(conv, kcpCallback);
             kcp.NoDelay(1, 10, 2, 1);
@@ -60,19 +54,16 @@ namespace Common
 
             kcpCallback.OnReceive += OnReceive;
             kcpCallback.OnOutput += OnOutput;
-
-            udpSocket = new Socket(endPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            udpSocket.Connect(endPoint);
         }
 
         private void OnReceive(byte[] buffer)
         {
-            int count = Math.Min(tcpAsyncReceive.Size, buffer.Length);
+            int count = Math.Min(asyncReceive.Size, buffer.Length);
             for (int i = 0; i < count; i++)
             {
-                tcpAsyncReceive.Buffer.SetValue(tcpAsyncReceive.Offset + i, buffer[i]);
+                asyncReceive.Buffer[asyncReceive.Offset + i] = buffer[i];
             }
-            tcpAsyncReceive.EndReceive(count);
+            asyncReceive.EndReceive(count);
             Send(buffer);
         }
 
@@ -80,7 +71,7 @@ namespace Common
         {
             if (IsConnected)
             {
-                udpSocket.Send(buffer.ToArray());
+                socket.Send(buffer.ToArray());
             }
         }
 
@@ -108,11 +99,11 @@ namespace Common
         {
             if (IsConnected)
             {
-                udpSocket.BeginReceive(udpAsyncReceive.Buffer, udpAsyncReceive.Offset, udpAsyncReceive.Size, SocketFlags.None, ReceiveCallback, null);
+                socket.BeginReceive(kcpAsyncReceive.Buffer, kcpAsyncReceive.Offset, kcpAsyncReceive.Size, SocketFlags.None, ReceiveCallback, null);
             }
             else
             {
-                udpAsyncReceive.EndReceive(0);
+                kcpAsyncReceive.EndReceive(0);
             }
         }
 
@@ -120,27 +111,34 @@ namespace Common
         {
             if (count > 0)
             {
-                kcp.Input(udpAsyncReceive.Buffer);
+                kcp.Input(kcpAsyncReceive.Buffer);
             }
         }
 
         private void ReceiveCallback(IAsyncResult ar)
         {
-            if (IsConnected)
+            try
             {
-                int count = udpSocket.EndReceive(ar);
-                udpAsyncReceive.EndReceive(count);
+                int count = socket.EndReceive(ar);
+                kcpAsyncReceive.EndReceive(count);
                 BeginReceive();
             }
-            else
+            catch
             {
-                udpAsyncReceive.EndReceive(0);
+                kcpAsyncReceive.EndReceive(0);
             }
         }
 
         public override bool IsConnected
         {
-            get { return tcpSocket != null && udpSocket != null && kcp != null && tcpSocket.Connected && udpSocket.Connected; }
+            get { return socket != null && kcp != null && socket.Connected; }
+        }
+
+        public override Socket Bind(IPEndPoint ipEndPoint)
+        {
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.Bind(ipEndPoint);
+            return socket;
         }
 
         public override void Send(byte[] buffer)
@@ -178,21 +176,19 @@ namespace Common
 
         public override void Close()
         {
-            if (tcpSocket != null)
+            if (socket != null)
             {
-                tcpSocket.Close();
-                tcpSocket = null;
-            }
-            if (udpSocket != null)
-            {
-                udpSocket.Close();
-                udpSocket = null;
+                socket.Close();
+                socket = null;
             }
             if (kcp != null)
             {
                 kcp.Dispose();
                 kcp = null;
             }
+
+            kcpCallback.OnReceive -= OnReceive;
+            kcpCallback.OnOutput -= OnOutput;
         }
     }
 }
