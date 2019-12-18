@@ -33,21 +33,24 @@ namespace Common
 
     public class KcpSession : SessionBase
     {
-        private KcpCallback kcpCallback;
-        private AsyncReceive asyncReceive;
         private Kcp kcp;
+        private KcpCallback kcpCallback;
         private Socket tcpSocket;
         private Socket udpSocket;
+        private AsyncReceive tcpAsyncReceive;
+        private AsyncReceive udpAsyncReceive;
         private const int conv = 0;
+        private const string KcpSendError = "kcp send error";
 
         public KcpSession(Socket socket, AsyncReceive asyncReceive)
         {
             tcpSocket = socket;
+            tcpAsyncReceive = asyncReceive;
             Connect(socket.RemoteEndPoint);
-            this.asyncReceive = asyncReceive;
+            udpAsyncReceive = new AsyncReceive(new Message(), ReceiveCallback);
         }
 
-        public void Connect(EndPoint endPoint)
+        private void Connect(EndPoint endPoint)
         {
             kcpCallback = new KcpCallback();
             kcp = new Kcp(conv, kcpCallback);
@@ -64,12 +67,12 @@ namespace Common
 
         private void OnReceive(byte[] buffer)
         {
-            int count = Math.Min(asyncReceive.Size, buffer.Length);
+            int count = Math.Min(tcpAsyncReceive.Size, buffer.Length);
             for (int i = 0; i < count; i++)
             {
-                asyncReceive.Buffer.SetValue(asyncReceive.Offset + i, buffer[i]);
+                tcpAsyncReceive.Buffer.SetValue(tcpAsyncReceive.Offset + i, buffer[i]);
             }
-            asyncReceive.EndReceive(count);
+            tcpAsyncReceive.EndReceive(count);
             Send(buffer);
         }
 
@@ -81,7 +84,7 @@ namespace Common
             }
         }
 
-        public void Update()
+        private void Update()
         {
             if (!IsConnected) { return; }
 
@@ -90,20 +93,6 @@ namespace Common
             int len;
             do
             {
-                try
-                {
-                    var data = new byte[Message.MaxSize];
-                    int size = udpSocket.Receive(data, 0, Message.MaxSize, SocketFlags.None);
-                    if (size > 0)
-                    {
-                        kcp.Input(data);
-                    }
-                }
-                catch (Exception e)
-                {
-                    ConsoleUtility.WriteLine(e.Message);
-                }
-
                 var (buffer, avalidLength) = kcp.TryRecv();
                 len = avalidLength;
                 if (buffer != null)
@@ -115,18 +104,60 @@ namespace Common
             } while (len > 0);
         }
 
+        private void BeginReceive()
+        {
+            if (IsConnected)
+            {
+                udpSocket.BeginReceive(udpAsyncReceive.Buffer, udpAsyncReceive.Offset, udpAsyncReceive.Size, SocketFlags.None, ReceiveCallback, null);
+            }
+            else
+            {
+                udpAsyncReceive.EndReceive(0);
+            }
+        }
+
+        private void ReceiveCallback(int count)
+        {
+            if (count > 0)
+            {
+                kcp.Input(udpAsyncReceive.Buffer);
+            }
+        }
+
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            if (IsConnected)
+            {
+                int count = udpSocket.EndReceive(ar);
+                udpAsyncReceive.EndReceive(count);
+                BeginReceive();
+            }
+            else
+            {
+                udpAsyncReceive.EndReceive(0);
+            }
+        }
+
         public override bool IsConnected
         {
-            get { return tcpSocket != null && udpSocket != null && tcpSocket.Connected && udpSocket.Connected; }
+            get { return tcpSocket != null && udpSocket != null && kcp != null && tcpSocket.Connected && udpSocket.Connected; }
         }
 
         public override void Send(byte[] buffer)
         {
-            kcp.Send(buffer);
+            if (IsConnected)
+            {
+                if (kcp.Send(buffer) != 0)
+                {
+                    ConsoleUtility.WriteLine(KcpSendError, ConsoleColor.Red);
+                }
+            }
         }
 
         public override void Receive()
         {
+            BeginReceive();
+
             Task.Run(async () =>
             {
                 try
@@ -156,6 +187,11 @@ namespace Common
             {
                 udpSocket.Close();
                 udpSocket = null;
+            }
+            if (kcp != null)
+            {
+                kcp.Dispose();
+                kcp = null;
             }
         }
     }

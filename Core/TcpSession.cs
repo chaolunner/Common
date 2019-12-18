@@ -26,6 +26,20 @@ namespace Common
             }
         }
 
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            if (IsConnected)
+            {
+                int count = socket.EndReceive(ar);
+                asyncReceive.EndReceive(count);
+                BeginReceive();
+            }
+            else
+            {
+                asyncReceive.EndReceive(0);
+            }
+        }
+
         public override bool IsConnected
         {
             get { return socket != null && socket.Connected; }
@@ -42,20 +56,6 @@ namespace Common
         public override void Receive()
         {
             BeginReceive();
-        }
-
-        private void ReceiveCallback(IAsyncResult ar)
-        {
-            if (IsConnected)
-            {
-                int count = socket.EndReceive(ar);
-                asyncReceive.EndReceive(count);
-                BeginReceive();
-            }
-            else
-            {
-                asyncReceive.EndReceive(0);
-            }
         }
 
         public override void Close()
