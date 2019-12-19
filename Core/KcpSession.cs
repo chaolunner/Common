@@ -66,7 +66,6 @@ namespace Common
                 asyncReceive.Buffer[asyncReceive.Offset + i] = buffer[i];
             }
             asyncReceive.EndReceive(count);
-            Send(buffer);
         }
 
         private void OnOutput(Memory<byte> buffer)
