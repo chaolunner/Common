@@ -33,18 +33,20 @@ namespace Common
 
     public class KcpSession : SessionBase
     {
+        private bool isConnected;
         private Kcp kcp;
         private KcpCallback kcpCallback;
         private Socket socket;
         private IAsyncReceive asyncReceive;
+        private EndPoint remoteEP;
         private const int conv = 1;
         private const string KcpSendError = "kcp send error";
 
         public KcpSession(Socket socket, IAsyncReceive asyncReceive, EndPoint remoteEP)
         {
             this.socket = socket;
-            this.socket.Connect(remoteEP);
             this.asyncReceive = asyncReceive;
+            this.remoteEP = remoteEP;
 
             kcpCallback = new KcpCallback();
             kcp = new Kcp(conv, kcpCallback);
@@ -54,6 +56,8 @@ namespace Common
 
             kcpCallback.OnReceive += OnReceive;
             kcpCallback.OnOutput += OnOutput;
+
+            isConnected = true;
 
             Update();
         }
@@ -72,7 +76,7 @@ namespace Common
         {
             if (IsConnected)
             {
-                socket.Send(buffer.ToArray());
+                socket.SendTo(buffer.ToArray(), remoteEP);
             }
         }
 
@@ -111,7 +115,7 @@ namespace Common
 
         public override bool IsConnected
         {
-            get { return socket != null && kcp != null && socket.Connected; }
+            get { return isConnected; }
         }
 
         public override void Send(byte[] buffer)
@@ -136,7 +140,6 @@ namespace Common
         {
             if (socket != null)
             {
-                socket.Close();
                 socket = null;
             }
 
@@ -148,6 +151,8 @@ namespace Common
 
             kcpCallback.OnReceive -= OnReceive;
             kcpCallback.OnOutput -= OnOutput;
+
+            isConnected = false;
         }
     }
 }
