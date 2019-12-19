@@ -122,16 +122,14 @@ namespace Common
             }
         }
 
-        public override void Receive(IAsyncReceive asyncReceive)
+        public override void Receive(IAsyncReceive asyncReceive, int count)
         {
-            if (asyncReceive != null)
+            byte[] buffer = new byte[count];
+            for (int i = 0; i < count; i++)
             {
-                kcp.Input(asyncReceive.Buffer);
+                buffer[i] = asyncReceive.Buffer[i];
             }
-            else
-            {
-                asyncReceive.EndReceive(0);
-            }
+            kcp.Input(buffer);
         }
 
         public override void Close()

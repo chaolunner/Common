@@ -54,7 +54,7 @@ namespace Common
             }
         }
 
-        public override void Receive(IAsyncReceive asyncReceive) { }
+        public override void Receive(IAsyncReceive asyncReceive, int count) { }
 
         public override void Close()
         {
