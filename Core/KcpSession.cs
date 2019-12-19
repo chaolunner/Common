@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Buffers;
+using System.Net;
 using System;
 
 namespace Common
@@ -35,13 +36,16 @@ namespace Common
         private Kcp kcp;
         private KcpCallback kcpCallback;
         private Socket socket;
-        private AsyncReceive asyncReceive;
-        private AsyncReceive kcpAsyncReceive;
+        private IAsyncReceive asyncReceive;
         private const int conv = 1;
         private const string KcpSendError = "kcp send error";
 
-        public KcpSession()
+        public KcpSession(Socket socket, IAsyncReceive asyncReceive, EndPoint remoteEP)
         {
+            this.socket = socket;
+            this.socket.Connect(remoteEP);
+            this.asyncReceive = asyncReceive;
+
             kcpCallback = new KcpCallback();
             kcp = new Kcp(conv, kcpCallback);
             kcp.NoDelay(1, 10, 2, 1);
@@ -50,6 +54,8 @@ namespace Common
 
             kcpCallback.OnReceive += OnReceive;
             kcpCallback.OnOutput += OnOutput;
+
+            Update();
         }
 
         private void OnReceive(byte[] buffer)
@@ -73,88 +79,26 @@ namespace Common
 
         private void Update()
         {
-            if (!IsConnected) { return; }
-
-            kcp.Update(DateTime.UtcNow);
-
-            int len;
-            do
-            {
-                var (buffer, avalidLength) = kcp.TryRecv();
-                len = avalidLength;
-                if (buffer != null)
-                {
-                    var avalidData = new byte[len];
-                    buffer.Memory.Span.Slice(0, len).CopyTo(avalidData);
-                    kcpCallback.Receive(avalidData);
-                }
-            } while (len > 0);
-        }
-
-        private void BeginReceive()
-        {
-            if (IsConnected)
-            {
-                socket.BeginReceive(kcpAsyncReceive.Buffer, kcpAsyncReceive.Offset, kcpAsyncReceive.Size, SocketFlags.None, ReceiveCallback, null);
-            }
-            else
-            {
-                kcpAsyncReceive.EndReceive(0);
-            }
-        }
-
-        private void ReceiveCallback(int count)
-        {
-            if (count > 0)
-            {
-                kcp.Input(kcpAsyncReceive.Buffer);
-            }
-        }
-
-        private void ReceiveCallback(IAsyncResult ar)
-        {
-            try
-            {
-                int count = socket.EndReceive(ar);
-                kcpAsyncReceive.EndReceive(count);
-                BeginReceive();
-            }
-            catch
-            {
-                kcpAsyncReceive.EndReceive(0);
-            }
-        }
-
-        public override bool IsConnected
-        {
-            get { return socket != null && kcp != null && socket.Connected; }
-        }
-
-        public override void Send(byte[] buffer)
-        {
-            if (IsConnected)
-            {
-                if (kcp.Send(buffer) != 0)
-                {
-                    ConsoleUtility.WriteLine(KcpSendError, ConsoleColor.Red);
-                }
-            }
-        }
-
-        public override void Receive(AsyncReceive asyncReceive)
-        {
-            this.asyncReceive = asyncReceive;
-            kcpAsyncReceive = new AsyncReceive(new Message(), ReceiveCallback);
-
-            BeginReceive();
-
             Task.Run(async () =>
             {
                 try
                 {
                     while (IsConnected)
                     {
-                        Update();
+                        kcp.Update(DateTime.UtcNow);
+
+                        int len;
+                        do
+                        {
+                            var (buffer, avalidLength) = kcp.TryRecv();
+                            len = avalidLength;
+                            if (buffer != null)
+                            {
+                                var avalidData = new byte[len];
+                                buffer.Memory.Span.Slice(0, len).CopyTo(avalidData);
+                                kcpCallback.Receive(avalidData);
+                            }
+                        } while (len > 0);
                         await Task.Delay(5);
                     }
                     Close();
@@ -166,6 +110,24 @@ namespace Common
             });
         }
 
+        public override bool IsConnected
+        {
+            get { return socket != null && kcp != null && socket.Connected; }
+        }
+
+        public override void Send(byte[] buffer)
+        {
+            if (IsConnected && kcp.Send(buffer) != 0)
+            {
+                ConsoleUtility.WriteLine(KcpSendError, ConsoleColor.Red);
+            }
+        }
+
+        public override void Receive(IAsyncReceive asyncReceive)
+        {
+            kcp.Input(asyncReceive.Buffer);
+        }
+
         public override void Close()
         {
             if (socket != null)
@@ -173,6 +135,7 @@ namespace Common
                 socket.Close();
                 socket = null;
             }
+
             if (kcp != null)
             {
                 kcp.Dispose();

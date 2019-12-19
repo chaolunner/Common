@@ -4,7 +4,7 @@
     {
         bool IsConnected { get; }
         void Send(byte[] buffer);
-        void Receive(AsyncReceive asyncReceive);
+        void Receive(IAsyncReceive asyncReceive);
         void Close();
     }
 }

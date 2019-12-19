@@ -6,11 +6,13 @@ namespace Common
     public class TcpSession : SessionBase
     {
         private Socket socket;
-        private AsyncReceive asyncReceive;
+        private IAsyncReceive asyncReceive;
 
-        public TcpSession(Socket socket)
+        public TcpSession(Socket socket, IAsyncReceive asyncReceive)
         {
             this.socket = socket;
+            this.asyncReceive = asyncReceive;
+            BeginReceive();
         }
 
         private void BeginReceive()
@@ -52,11 +54,7 @@ namespace Common
             }
         }
 
-        public override void Receive(AsyncReceive asyncReceive)
-        {
-            this.asyncReceive = asyncReceive;
-            BeginReceive();
-        }
+        public override void Receive(IAsyncReceive asyncReceive) { }
 
         public override void Close()
         {

@@ -2,38 +2,27 @@
 
 namespace Common
 {
-    public class AsyncReceive
+    public class AsyncReceive : IAsyncReceive
     {
-        private Message message;
+        private byte[] buffer;
+        private int offset;
+        private int size;
         private Action<int> asyncCallback;
 
-        public byte[] Buffer
+        public byte[] Buffer { get { return buffer; } }
+
+        public int Offset { get { return offset; } }
+
+        public int Size { get { return size; } }
+
+        public AsyncReceive(int size = Message.MaxSize)
         {
-            get
-            {
-                return message.Data;
-            }
+            this.size = size;
+            buffer = new byte[size];
         }
 
-        public int Offset
+        public void BeginReceive(Action<int> callback)
         {
-            get
-            {
-                return message.StartIndex;
-            }
-        }
-
-        public int Size
-        {
-            get
-            {
-                return message.RemainSize;
-            }
-        }
-
-        public AsyncReceive(Message msg, Action<int> callback)
-        {
-            message = msg;
             asyncCallback = callback;
         }
 
