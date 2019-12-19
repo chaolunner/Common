@@ -125,7 +125,14 @@ namespace Common
 
         public override void Receive(IAsyncReceive asyncReceive)
         {
-            kcp.Input(asyncReceive.Buffer);
+            if (asyncReceive != null)
+            {
+                kcp.Input(asyncReceive.Buffer);
+            }
+            else
+            {
+                asyncReceive.EndReceive(0);
+            }
         }
 
         public override void Close()
