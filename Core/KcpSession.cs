@@ -39,7 +39,9 @@ namespace Common
         private Socket socket;
         private IAsyncReceive asyncReceive;
         private EndPoint remoteEP;
+        private DateTime heartbeat;
         private const int conv = 1;
+        private const double timeout = 1d;
         private const string KcpSendError = "kcp send error";
 
         public KcpSession(Socket socket, IAsyncReceive asyncReceive, EndPoint remoteEP)
@@ -86,6 +88,7 @@ namespace Common
             {
                 try
                 {
+                    heartbeat = DateTime.UtcNow;
                     while (IsConnected)
                     {
                         kcp.Update(DateTime.UtcNow);
@@ -102,9 +105,14 @@ namespace Common
                                 kcpCallback.Receive(avalidData);
                             }
                         } while (len > 0);
+
+                        if ((DateTime.UtcNow - heartbeat).TotalSeconds >= timeout)
+                        {
+                            asyncReceive.EndReceive(0);
+                        }
+
                         await Task.Delay(5);
                     }
-                    Close();
                 }
                 catch (Exception e)
                 {
@@ -133,6 +141,7 @@ namespace Common
             {
                 buffer[i] = asyncReceive.Buffer[i];
             }
+            heartbeat = DateTime.UtcNow;
             kcp.Input(buffer);
         }
 
