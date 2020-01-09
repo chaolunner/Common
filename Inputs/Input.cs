@@ -2,8 +2,9 @@
 
 namespace Common
 {
-    [Union(0, typeof(AxisInput))]
-    [Union(1, typeof(KeyInput))]
-    [Union(2, typeof(MouseInput))]
+    [Union(0, typeof(HeartBeatInput))]
+    [Union(1, typeof(AxisInput))]
+    [Union(2, typeof(KeyInput))]
+    [Union(3, typeof(MouseInput))]
     public interface IInput { }
 }
