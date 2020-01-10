@@ -41,7 +41,7 @@ namespace Common
         private EndPoint remoteEP;
         private DateTime heartbeat;
         private const int conv = 1;
-        private const double timeout = 1d;
+        private const double timeout = 3d;
         private const string KcpSendError = "kcp send error";
 
         public KcpSession(Socket socket, IAsyncReceive asyncReceive, EndPoint remoteEP)

@@ -9,7 +9,6 @@
         CreateRoom,
         JoinRoom,
         QuitRoom,
-        StartGame,
         Input,
         Lockstep,
         Timeline,
