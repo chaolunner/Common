@@ -1,6 +1,6 @@
 ﻿namespace Common
 {
-    public enum EventType
+    public enum EventCode
     {
         None,
         HeartBeat,

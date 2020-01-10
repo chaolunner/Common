@@ -6,16 +6,35 @@ namespace Common
     [MessagePackObject]
     public class EventInput : IInput
     {
-        [Key(0)]
-        public List<EventData> Events;
-    }
+        private const char Separator = ',';
 
-    [MessagePackObject]
-    public struct EventData
-    {
         [Key(0)]
-        public EventType Type;
-        [Key(1)]
-        public string Message;
+        public Dictionary<EventCode, string> Events;
+
+        public EventInput()
+        {
+            Events = new Dictionary<EventCode, string>();
+        }
+
+        public void Write(EventCode type, string msg)
+        {
+            if (!Events.ContainsKey(type))
+            {
+                Events.Add(type, msg);
+            }
+            else
+            {
+                Events[type] += Separator + msg;
+            }
+        }
+
+        public string[] Read(EventCode type)
+        {
+            if (Events.ContainsKey(type))
+            {
+                return Events[type].Split(Separator);
+            }
+            return null;
+        }
     }
 }
