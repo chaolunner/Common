@@ -6,7 +6,7 @@ namespace Common
     [MessagePackObject]
     public class EventInput : IInput
     {
-        private const char Separator = ',';
+        private const char VerticalBar = '|';
 
         [Key(0)]
         public Dictionary<EventCode, string> Events;
@@ -24,7 +24,7 @@ namespace Common
             }
             else
             {
-                Events[type] += Separator + msg;
+                Events[type] += VerticalBar + msg;
             }
         }
 
@@ -32,7 +32,7 @@ namespace Common
         {
             if (Events.ContainsKey(type))
             {
-                return Events[type].Split(Separator);
+                return Events[type].Split(VerticalBar);
             }
             return null;
         }
