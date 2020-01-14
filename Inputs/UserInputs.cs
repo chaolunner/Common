@@ -6,7 +6,7 @@ namespace Common
     public struct UserInputs
     {
         [Key(0)]
-        public int Number;
+        public int Index;
         [Key(1)]
         public int TickId;
         [Key(2)]
