@@ -10,6 +10,6 @@ namespace Common
         [Key(1)]
         public Fix64 DeltaTime;
         [Key(2)]
-        public UserInputs[] UserInputs;
+        public UserInputs[][] UserInputs;
     }
 }
