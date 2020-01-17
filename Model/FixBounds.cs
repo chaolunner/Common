@@ -7,35 +7,35 @@ namespace Common
     public struct FixBounds : IEquatable<FixBounds>
     {
         [Key(0)]
-        private FixVector3 m_Position;
+        public FixVector3 Position;
         [Key(1)]
-        private FixVector3 m_Size;
+        public FixVector3 Size;
 
         [IgnoreMember]
         public Fix64 x
         {
-            get { return m_Position.x; }
-            set { m_Position.x = value; }
+            get { return Position.x; }
+            set { Position.x = value; }
         }
 
         [IgnoreMember]
         public Fix64 y
         {
-            get { return m_Position.y; }
-            set { m_Position.y = value; }
+            get { return Position.y; }
+            set { Position.y = value; }
         }
 
         [IgnoreMember]
         public Fix64 z
         {
-            get { return m_Position.z; }
-            set { m_Position.z = value; }
+            get { return Position.z; }
+            set { Position.z = value; }
         }
 
         [IgnoreMember]
         public FixVector3 center
         {
-            get { return new FixVector3(x + m_Size.x / 2f, y + m_Size.y / 2f, z + m_Size.z / 2f); }
+            get { return new FixVector3(x + Size.x / 2f, y + Size.y / 2f, z + Size.z / 2f); }
         }
 
         [IgnoreMember]
@@ -65,84 +65,70 @@ namespace Common
         [IgnoreMember]
         public Fix64 xMin
         {
-            get { return FixMath.Min(m_Position.x, m_Position.x + m_Size.x); }
+            get { return FixMath.Min(Position.x, Position.x + Size.x); }
             set
             {
                 Fix64 oldxmax = xMax;
-                m_Position.x = value;
-                m_Size.x = oldxmax - m_Position.x;
+                Position.x = value;
+                Size.x = oldxmax - Position.x;
             }
         }
 
         [IgnoreMember]
         public Fix64 yMin
         {
-            get { return FixMath.Min(m_Position.y, m_Position.y + m_Size.y); }
+            get { return FixMath.Min(Position.y, Position.y + Size.y); }
             set
             {
                 Fix64 oldymax = yMax;
-                m_Position.y = value;
-                m_Size.y = oldymax - m_Position.y;
+                Position.y = value;
+                Size.y = oldymax - Position.y;
             }
         }
 
         [IgnoreMember]
         public Fix64 zMin
         {
-            get { return FixMath.Min(m_Position.z, m_Position.z + m_Size.z); }
+            get { return FixMath.Min(Position.z, Position.z + Size.z); }
             set
             {
                 Fix64 oldzmax = zMax;
-                m_Position.z = value;
-                m_Size.z = oldzmax - m_Position.z;
+                Position.z = value;
+                Size.z = oldzmax - Position.z;
             }
         }
 
         [IgnoreMember]
         public Fix64 xMax
         {
-            get { return FixMath.Max(m_Position.x, m_Position.x + m_Size.x); }
-            set { m_Size.x = value - m_Position.x; }
+            get { return FixMath.Max(Position.x, Position.x + Size.x); }
+            set { Size.x = value - Position.x; }
         }
 
         [IgnoreMember]
         public Fix64 yMax
         {
-            get { return FixMath.Max(m_Position.y, m_Position.y + m_Size.y); }
-            set { m_Size.y = value - m_Position.y; }
+            get { return FixMath.Max(Position.y, Position.y + Size.y); }
+            set { Size.y = value - Position.y; }
         }
 
         [IgnoreMember]
         public Fix64 zMax
         {
-            get { return FixMath.Max(m_Position.z, m_Position.z + m_Size.z); }
-            set { m_Size.z = value - m_Position.z; }
-        }
-
-        [IgnoreMember]
-        public FixVector3 position
-        {
-            get { return m_Position; }
-            set { m_Position = value; }
-        }
-
-        [IgnoreMember]
-        public FixVector3 size
-        {
-            get { return m_Size; }
-            set { m_Size = value; }
+            get { return FixMath.Max(Position.z, Position.z + Size.z); }
+            set { Size.z = value - Position.z; }
         }
 
         public FixBounds(Fix64 xMin, Fix64 yMin, Fix64 zMin, Fix64 sizeX, Fix64 sizeY, Fix64 sizeZ)
         {
-            m_Position = new FixVector3(xMin, yMin, zMin);
-            m_Size = new FixVector3(sizeX, sizeY, sizeZ);
+            Position = new FixVector3(xMin, yMin, zMin);
+            Size = new FixVector3(sizeX, sizeY, sizeZ);
         }
 
         public FixBounds(FixVector3 position, FixVector3 size)
         {
-            m_Position = position;
-            m_Size = size;
+            Position = position;
+            this.Size = size;
         }
 
         public void SetMinMax(FixVector3 minPosition, FixVector3 maxPosition)
@@ -153,15 +139,15 @@ namespace Common
 
         public void ClampToBounds(FixBounds bounds)
         {
-            position = new FixVector3(
-                FixMath.Max(FixMath.Min(bounds.xMax, position.x), bounds.xMin),
-                FixMath.Max(FixMath.Min(bounds.yMax, position.y), bounds.yMin),
-                FixMath.Max(FixMath.Min(bounds.zMax, position.z), bounds.zMin)
+            Position = new FixVector3(
+                FixMath.Max(FixMath.Min(bounds.xMax, Position.x), bounds.xMin),
+                FixMath.Max(FixMath.Min(bounds.yMax, Position.y), bounds.yMin),
+                FixMath.Max(FixMath.Min(bounds.zMax, Position.z), bounds.zMin)
             );
-            size = new FixVector3(
-                FixMath.Min(bounds.xMax - position.x, size.x),
-                FixMath.Min(bounds.yMax - position.y, size.y),
-                FixMath.Min(bounds.zMax - position.z, size.z)
+            Size = new FixVector3(
+                FixMath.Min(bounds.xMax - Position.x, Size.x),
+                FixMath.Min(bounds.yMax - Position.y, Size.y),
+                FixMath.Min(bounds.zMax - Position.z, Size.z)
             );
         }
 
@@ -177,12 +163,12 @@ namespace Common
 
         public override string ToString()
         {
-            return string.Format("Position: {0}, Size: {1}", m_Position, m_Size);
+            return string.Format("Position: {0}, Size: {1}", Position, Size);
         }
 
         public static bool operator ==(FixBounds lhs, FixBounds rhs)
         {
-            return lhs.m_Position == rhs.m_Position && lhs.m_Size == rhs.m_Size;
+            return lhs.Position == rhs.Position && lhs.Size == rhs.Size;
         }
 
         public static bool operator !=(FixBounds lhs, FixBounds rhs)
@@ -199,12 +185,12 @@ namespace Common
 
         public bool Equals(FixBounds other)
         {
-            return m_Position.Equals(other.m_Position) && m_Size.Equals(other.m_Size);
+            return Position.Equals(other.Position) && Size.Equals(other.Size);
         }
 
         public override int GetHashCode()
         {
-            return m_Position.GetHashCode() ^ (m_Size.GetHashCode() << 2);
+            return Position.GetHashCode() ^ (Size.GetHashCode() << 2);
         }
     }
 }
