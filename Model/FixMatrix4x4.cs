@@ -192,7 +192,7 @@ namespace Common
         /// Calculates the inverse of a give matrix.
         /// </summary>
         /// <param name="matrix">The matrix to invert.</param>
-        /// <returns>The inverted JMatrix.</returns>
+        /// <returns>The inverted FixMatrix4x4.</returns>
         public static FixMatrix4x4 Inverse(FixMatrix4x4 matrix)
         {
             FixMatrix4x4 result;
@@ -255,7 +255,7 @@ namespace Common
         /// Calculates the inverse of a give matrix.
         /// </summary>
         /// <param name="matrix">The matrix to invert.</param>
-        /// <param name="result">The inverted JMatrix.</param>
+        /// <param name="result">The inverted FixMatrix4x4.</param>
         public static void Inverse(ref FixMatrix4x4 matrix, out FixMatrix4x4 result)
         {
             //                                       -1
@@ -434,7 +434,7 @@ namespace Common
         /// </summary>
         /// <param name="matrix1">The matrix.</param>
         /// <param name="scaleFactor">The scale factor.</param>
-        /// <returns>A JMatrix multiplied by the scale factor.</returns>
+        /// <returns>A FixMatrix4x4 multiplied by the scale factor.</returns>
         public static FixMatrix4x4 Multiply(FixMatrix4x4 matrix1, Fix64 scaleFactor)
         {
             FixMatrix4x4 result;
@@ -447,7 +447,7 @@ namespace Common
         /// </summary>
         /// <param name="matrix1">The matrix.</param>
         /// <param name="scaleFactor">The scale factor.</param>
-        /// <param name="result">A JMatrix multiplied by the scale factor.</param>
+        /// <param name="result">A FixMatrix4x4 multiplied by the scale factor.</param>
         public static void Multiply(ref FixMatrix4x4 matrix1, Fix64 scaleFactor, out FixMatrix4x4 result)
         {
             Fix64 num = scaleFactor;
@@ -481,10 +481,10 @@ namespace Common
         }
 
         /// <summary>
-        /// Creates a JMatrix representing an orientation from a quaternion.
+        /// Creates a FixMatrix4x4 representing an orientation from a quaternion.
         /// </summary>
         /// <param name="quaternion">The quaternion the matrix should be created from.</param>
-        /// <param name="result">JMatrix representing an orientation.</param>
+        /// <param name="result">FixMatrix4x4 representing an orientation.</param>
         public static void Rotate(ref FixQuaternion quaternion, out FixMatrix4x4 result)
         {
             // Precalculate coordinate products
@@ -524,7 +524,7 @@ namespace Common
         /// Creates the transposed matrix.
         /// </summary>
         /// <param name="matrix">The matrix which should be transposed.</param>
-        /// <returns>The transposed JMatrix.</returns>
+        /// <returns>The transposed FixMatrix4x4.</returns>
         public static FixMatrix4x4 Transpose(FixMatrix4x4 matrix)
         {
             FixMatrix4x4 result;
@@ -536,7 +536,7 @@ namespace Common
         /// Creates the transposed matrix.
         /// </summary>
         /// <param name="matrix">The matrix which should be transposed.</param>
-        /// <param name="result">The transposed JMatrix.</param>
+        /// <param name="result">The transposed FixMatrix4x4.</param>
         public static void Transpose(ref FixMatrix4x4 matrix, out FixMatrix4x4 result)
         {
             result.M11 = matrix.M11;

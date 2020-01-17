@@ -177,7 +177,6 @@ namespace Common
         /// <param name="m31">m31</param>
         /// <param name="m32">m32</param>
         /// <param name="m33">m33</param>
-        #region public JMatrix(Fix64 m11, Fix64 m12, Fix64 m13, Fix64 m21, Fix64 m22, Fix64 m23,Fix64 m31, Fix64 m32, Fix64 m33)
         public FixMatrix3x3(Fix64 m11, Fix64 m12, Fix64 m13, Fix64 m21, Fix64 m22, Fix64 m23, Fix64 m31, Fix64 m32, Fix64 m33)
         {
             this.M11 = m11;
@@ -190,7 +189,6 @@ namespace Common
             this.M32 = m32;
             this.M33 = m33;
         }
-        #endregion
 
         /// <summary>
         /// Gets the determinant of the matrix.
@@ -209,7 +207,6 @@ namespace Common
         /// <param name="matrix1">The first matrix.</param>
         /// <param name="matrix2">The second matrix.</param>
         /// <returns>The product of both matrices.</returns>
-        #region public static JMatrix Multiply(JMatrix matrix1, JMatrix matrix2)
         public static FixMatrix3x3 Multiply(FixMatrix3x3 matrix1, FixMatrix3x3 matrix2)
         {
             FixMatrix3x3 result;
@@ -245,7 +242,6 @@ namespace Common
             result.M32 = num7;
             result.M33 = num8;
         }
-        #endregion
 
         /// <summary>
         /// Matrices are added.
@@ -253,7 +249,6 @@ namespace Common
         /// <param name="matrix1">The first matrix.</param>
         /// <param name="matrix2">The second matrix.</param>
         /// <returns>The sum of both matrices.</returns>
-        #region public static JMatrix Add(JMatrix matrix1, JMatrix matrix2)
         public static FixMatrix3x3 Add(FixMatrix3x3 matrix1, FixMatrix3x3 matrix2)
         {
             FixMatrix3x3 result;
@@ -279,14 +274,12 @@ namespace Common
             result.M32 = matrix1.M32 + matrix2.M32;
             result.M33 = matrix1.M33 + matrix2.M33;
         }
-        #endregion
 
         /// <summary>
         /// Calculates the inverse of a give matrix.
         /// </summary>
         /// <param name="matrix">The matrix to invert.</param>
-        /// <returns>The inverted JMatrix.</returns>
-        #region public static JMatrix Inverse(JMatrix matrix)
+        /// <returns>The inverted FixMatrix3x3.</returns>
         public static FixMatrix3x3 Inverse(FixMatrix3x3 matrix)
         {
             FixMatrix3x3 result;
@@ -332,7 +325,7 @@ namespace Common
         /// Calculates the inverse of a give matrix.
         /// </summary>
         /// <param name="matrix">The matrix to invert.</param>
-        /// <param name="result">The inverted JMatrix.</param>
+        /// <param name="result">The inverted FixMatrix3x3.</param>
         public static void Inverse(ref FixMatrix3x3 matrix, out FixMatrix3x3 result)
         {
             Fix64 det = 1024 * matrix.M11 * matrix.M22 * matrix.M33 -
@@ -380,15 +373,13 @@ namespace Common
             }
 
         }
-        #endregion
 
         /// <summary>
         /// Multiply a matrix by a scalefactor.
         /// </summary>
         /// <param name="matrix1">The matrix.</param>
         /// <param name="scaleFactor">The scale factor.</param>
-        /// <returns>A JMatrix multiplied by the scale factor.</returns>
-        #region public static JMatrix Multiply(JMatrix matrix1, Fix64 scaleFactor)
+        /// <returns>A FixMatrix3x3 multiplied by the scale factor.</returns>
         public static FixMatrix3x3 Multiply(FixMatrix3x3 matrix1, Fix64 scaleFactor)
         {
             FixMatrix3x3 result;
@@ -401,7 +392,7 @@ namespace Common
         /// </summary>
         /// <param name="matrix1">The matrix.</param>
         /// <param name="scaleFactor">The scale factor.</param>
-        /// <param name="result">A JMatrix multiplied by the scale factor.</param>
+        /// <param name="result">A FixMatrix3x3 multiplied by the scale factor.</param>
         public static void Multiply(ref FixMatrix3x3 matrix1, Fix64 scaleFactor, out FixMatrix3x3 result)
         {
             Fix64 num = scaleFactor;
@@ -415,15 +406,12 @@ namespace Common
             result.M32 = matrix1.M32 * num;
             result.M33 = matrix1.M33 * num;
         }
-        #endregion
 
         /// <summary>
-        /// Creates a JMatrix representing an orientation from a quaternion.
+        /// Creates a FixMatrix3x3 representing an orientation from a quaternion.
         /// </summary>
         /// <param name="quaternion">The quaternion the matrix should be created from.</param>
-        /// <returns>JMatrix representing an orientation.</returns>
-        #region public static JMatrix CreateFromQuaternion(JQuaternion quaternion)
-
+        /// <returns>FixMatrix3x3 representing an orientation.</returns>
         public static FixMatrix3x3 CreateFromLookAt(FixVector3 position, FixVector3 target)
         {
             FixMatrix3x3 result;
@@ -464,10 +452,10 @@ namespace Common
         }
 
         /// <summary>
-        /// Creates a JMatrix representing an orientation from a quaternion.
+        /// Creates a FixMatrix3x3 representing an orientation from a quaternion.
         /// </summary>
         /// <param name="quaternion">The quaternion the matrix should be created from.</param>
-        /// <param name="result">JMatrix representing an orientation.</param>
+        /// <param name="result">FixMatrix3x3 representing an orientation.</param>
         public static void CreateFromQuaternion(ref FixQuaternion quaternion, out FixMatrix3x3 result)
         {
             Fix64 num9 = quaternion.x * quaternion.x;
@@ -489,14 +477,12 @@ namespace Common
             result.M32 = 2 * (num2 - num);
             result.M33 = Fix64.One - (2 * (num8 + num9));
         }
-        #endregion
 
         /// <summary>
         /// Creates the transposed matrix.
         /// </summary>
         /// <param name="matrix">The matrix which should be transposed.</param>
-        /// <returns>The transposed JMatrix.</returns>
-        #region public static JMatrix Transpose(JMatrix matrix)
+        /// <returns>The transposed FixMatrix3x3.</returns>
         public static FixMatrix3x3 Transpose(FixMatrix3x3 matrix)
         {
             FixMatrix3x3 result;
@@ -508,7 +494,7 @@ namespace Common
         /// Creates the transposed matrix.
         /// </summary>
         /// <param name="matrix">The matrix which should be transposed.</param>
-        /// <param name="result">The transposed JMatrix.</param>
+        /// <param name="result">The transposed FixMatrix3x3.</param>
         public static void Transpose(ref FixMatrix3x3 matrix, out FixMatrix3x3 result)
         {
             result.M11 = matrix.M11;
@@ -521,7 +507,6 @@ namespace Common
             result.M32 = matrix.M23;
             result.M33 = matrix.M33;
         }
-        #endregion
 
         /// <summary>
         /// Multiplies two matrices.
@@ -529,14 +514,11 @@ namespace Common
         /// <param name="value1">The first matrix.</param>
         /// <param name="value2">The second matrix.</param>
         /// <returns>The product of both values.</returns>
-        #region public static JMatrix operator *(JMatrix value1,JMatrix value2)
         public static FixMatrix3x3 operator *(FixMatrix3x3 value1, FixMatrix3x3 value2)
         {
             FixMatrix3x3 result; FixMatrix3x3.Multiply(ref value1, ref value2, out result);
             return result;
         }
-        #endregion
-
 
         public Fix64 Trace()
         {
@@ -549,13 +531,11 @@ namespace Common
         /// <param name="value1">The first matrix.</param>
         /// <param name="value2">The second matrix.</param>
         /// <returns>The sum of both values.</returns>
-        #region public static JMatrix operator +(JMatrix value1, JMatrix value2)
         public static FixMatrix3x3 operator +(FixMatrix3x3 value1, FixMatrix3x3 value2)
         {
             FixMatrix3x3 result; FixMatrix3x3.Add(ref value1, ref value2, out result);
             return result;
         }
-        #endregion
 
         /// <summary>
         /// Subtracts two matrices.
@@ -563,14 +543,12 @@ namespace Common
         /// <param name="value1">The first matrix.</param>
         /// <param name="value2">The second matrix.</param>
         /// <returns>The difference of both values.</returns>
-        #region public static JMatrix operator -(JMatrix value1, JMatrix value2)
         public static FixMatrix3x3 operator -(FixMatrix3x3 value1, FixMatrix3x3 value2)
         {
             FixMatrix3x3 result; FixMatrix3x3.Multiply(ref value2, -Fix64.One, out value2);
             FixMatrix3x3.Add(ref value1, ref value2, out result);
             return result;
         }
-        #endregion
 
         public static bool operator ==(FixMatrix3x3 value1, FixMatrix3x3 value2)
         {

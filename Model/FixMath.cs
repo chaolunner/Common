@@ -136,7 +136,6 @@ namespace Common
         /// </summary>
         /// <param name="matrix">The matrix.</param>
         /// <param name="result">The absolute matrix.</param>
-        #region public static void Absolute(ref JMatrix matrix,out JMatrix result)
         public static void Absolute(ref FixMatrix3x3 matrix, out FixMatrix3x3 result)
         {
             result.M11 = Fix64.Abs(matrix.M11);
@@ -149,7 +148,6 @@ namespace Common
             result.M32 = Fix64.Abs(matrix.M32);
             result.M33 = Fix64.Abs(matrix.M33);
         }
-        #endregion
 
         /// <summary>
         /// Returns the sine of value.
