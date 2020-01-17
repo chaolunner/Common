@@ -3,11 +3,10 @@
 namespace Common
 {
     [MessagePackObject]
-    public struct FixVector3
+    public struct FixVector4
     {
         private static Fix64 ZeroEpsilonSq = FixMath.Epsilon;
-        internal static FixVector3 InternalZero;
-        internal static FixVector3 Arbitrary;
+        internal static FixVector4 InternalZero;
 
         [Key(0)]
         public Fix64 x;
@@ -15,73 +14,44 @@ namespace Common
         public Fix64 y;
         [Key(2)]
         public Fix64 z;
+        [Key(3)]
+        public Fix64 w;
 
         #region Static readonly variables
         /// <summary>
-        /// A vector with components (0,0,0);
+        /// A vector with components (0,0,0,0);
         /// </summary>
-        public static readonly FixVector3 zero;
+        public static readonly FixVector4 zero;
         /// <summary>
-        /// A vector with components (-1,0,0);
+        /// A vector with components (1,1,1,1);
         /// </summary>
-        public static readonly FixVector3 left;
-        /// <summary>
-        /// A vector with components (1,0,0);
-        /// </summary>
-        public static readonly FixVector3 right;
-        /// <summary>
-        /// A vector with components (0,1,0);
-        /// </summary>
-        public static readonly FixVector3 up;
-        /// <summary>
-        /// A vector with components (0,-1,0);
-        /// </summary>
-        public static readonly FixVector3 down;
-        /// <summary>
-        /// A vector with components (0,0,-1);
-        /// </summary>
-        public static readonly FixVector3 back;
-        /// <summary>
-        /// A vector with components (0,0,1);
-        /// </summary>
-        public static readonly FixVector3 forward;
-        /// <summary>
-        /// A vector with components (1,1,1);
-        /// </summary>
-        public static readonly FixVector3 one;
+        public static readonly FixVector4 one;
         /// <summary>
         /// A vector with components 
         /// (Fix64.MinValue,Fix64.MinValue,Fix64.MinValue);
         /// </summary>
-        public static readonly FixVector3 MinValue;
+        public static readonly FixVector4 MinValue;
         /// <summary>
         /// A vector with components 
         /// (Fix64.MaxValue,Fix64.MaxValue,Fix64.MaxValue);
         /// </summary>
-        public static readonly FixVector3 MaxValue;
+        public static readonly FixVector4 MaxValue;
         #endregion
 
         #region Private static constructor
-        static FixVector3()
+        static FixVector4()
         {
-            one = new FixVector3(1, 1, 1);
-            zero = new FixVector3(0, 0, 0);
-            left = new FixVector3(-1, 0, 0);
-            right = new FixVector3(1, 0, 0);
-            up = new FixVector3(0, 1, 0);
-            down = new FixVector3(0, -1, 0);
-            back = new FixVector3(0, 0, -1);
-            forward = new FixVector3(0, 0, 1);
-            MinValue = new FixVector3(Fix64.MinValue);
-            MaxValue = new FixVector3(Fix64.MaxValue);
-            Arbitrary = new FixVector3(1, 1, 1);
+            one = new FixVector4(1, 1, 1, 1);
+            zero = new FixVector4(0, 0, 0, 0);
+            MinValue = new FixVector4(Fix64.MinValue);
+            MaxValue = new FixVector4(Fix64.MaxValue);
             InternalZero = zero;
         }
         #endregion
 
-        public static FixVector3 Abs(FixVector3 other)
+        public static FixVector4 Abs(FixVector4 other)
         {
-            return new FixVector3(Fix64.Abs(other.x), Fix64.Abs(other.y), Fix64.Abs(other.z));
+            return new FixVector4(Fix64.Abs(other.x), Fix64.Abs(other.y), Fix64.Abs(other.z), Fix64.Abs(other.z));
         }
 
         /// <summary>
@@ -93,7 +63,7 @@ namespace Common
         {
             get
             {
-                return (((this.x * this.x) + (this.y * this.y)) + (this.z * this.z));
+                return (((this.x * this.x) + (this.y * this.y)) + (this.z * this.z) + (this.w * this.w));
             }
         }
 
@@ -106,12 +76,12 @@ namespace Common
         {
             get
             {
-                Fix64 num = ((this.x * this.x) + (this.y * this.y)) + (this.z * this.z);
+                Fix64 num = sqrMagnitude;
                 return Fix64.Sqrt(num);
             }
         }
 
-        public static FixVector3 ClampMagnitude(FixVector3 vector, Fix64 maxLength)
+        public static FixVector4 ClampMagnitude(FixVector4 vector, Fix64 maxLength)
         {
             return Normalize(vector) * maxLength;
         }
@@ -121,11 +91,11 @@ namespace Common
         /// </summary>
         /// <returns>Returns a normalized version of the vector.</returns>
         [IgnoreMember]
-        public FixVector3 normalized
+        public FixVector4 normalized
         {
             get
             {
-                FixVector3 result = new FixVector3(this.x, this.y, this.z);
+                FixVector4 result = new FixVector4(this.x, this.y, this.z, this.w);
                 result.Normalize();
 
                 return result;
@@ -138,29 +108,32 @@ namespace Common
         /// <param name="x">The X component of the vector.</param>
         /// <param name="y">The Y component of the vector.</param>
         /// <param name="z">The Z component of the vector.</param>
-
-        public FixVector3(int x, int y, int z)
+        /// <param name="w">The W component of the vector.</param>
+        public FixVector4(int x, int y, int z, int w)
         {
             this.x = (Fix64)x;
             this.y = (Fix64)y;
             this.z = (Fix64)z;
+            this.w = (Fix64)w;
         }
 
-        public FixVector3(Fix64 x, Fix64 y, Fix64 z)
+        public FixVector4(Fix64 x, Fix64 y, Fix64 z, Fix64 w)
         {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.w = w;
         }
 
         /// <summary>
         /// Multiplies each component of the vector by the same components of the provided vector.
         /// </summary>
-        public void Scale(FixVector3 other)
+        public void Scale(FixVector4 other)
         {
             this.x = x * other.x;
             this.y = y * other.y;
             this.z = z * other.z;
+            this.w = w * other.w;
         }
 
         /// <summary>
@@ -169,25 +142,28 @@ namespace Common
         /// <param name="x">The X component of the vector.</param>
         /// <param name="y">The Y component of the vector.</param>
         /// <param name="z">The Z component of the vector.</param>
-        public void Set(Fix64 x, Fix64 y, Fix64 z)
+        /// <param name="w">The W component of the vector.</param>
+        public void Set(Fix64 x, Fix64 y, Fix64 z, Fix64 w)
         {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.w = w;
         }
 
         /// <summary>
         /// Constructor initializing a new instance of the structure
         /// </summary>
         /// <param name="xyz">All components of the vector are set to xyz</param>
-        public FixVector3(Fix64 xyz)
+        public FixVector4(Fix64 xyzw)
         {
-            this.x = xyz;
-            this.y = xyz;
-            this.z = xyz;
+            this.x = xyzw;
+            this.y = xyzw;
+            this.z = xyzw;
+            this.w = xyzw;
         }
 
-        public static FixVector3 Lerp(FixVector3 from, FixVector3 to, Fix64 percent)
+        public static FixVector4 Lerp(FixVector4 from, FixVector4 to, Fix64 percent)
         {
             return from + (to - from) * percent;
         }
@@ -199,7 +175,7 @@ namespace Common
         #region public override string ToString()
         public override string ToString()
         {
-            return string.Format("({0:f1}, {1:f1}, {2:f1})", x.AsFloat(), y.AsFloat(), z.AsFloat());
+            return string.Format("({0:f1}, {1:f1}, {2:f1}, {3:f1})", x.AsFloat(), y.AsFloat(), z.AsFloat(), w.AsFloat());
         }
         #endregion
 
@@ -211,22 +187,23 @@ namespace Common
         #region public override bool Equals(object obj)
         public override bool Equals(object obj)
         {
-            if (!(obj is FixVector3)) return false;
-            FixVector3 other = (FixVector3)obj;
+            if (!(obj is FixVector4)) return false;
+            FixVector4 other = (FixVector4)obj;
 
-            return (((x == other.x) && (y == other.y)) && (z == other.z));
+            return (((x == other.x) && (y == other.y)) && (z == other.z) && (w == other.w));
         }
         #endregion
 
         /// <summary>
         /// Multiplies each component of the vector by the same components of the provided vector.
         /// </summary>
-        public static FixVector3 Scale(FixVector3 vecA, FixVector3 vecB)
+        public static FixVector4 Scale(FixVector4 vecA, FixVector4 vecB)
         {
-            FixVector3 result;
+            FixVector4 result;
             result.x = vecA.x * vecB.x;
             result.y = vecA.y * vecB.y;
             result.z = vecA.z * vecB.z;
+            result.w = vecA.w * vecB.w;
 
             return result;
         }
@@ -238,9 +215,9 @@ namespace Common
         /// <param name="value2">The second value.</param>
         /// <returns>Returns true if both values are equal, otherwise false.</returns>
         #region public static bool operator ==(JVector value1, JVector value2)
-        public static bool operator ==(FixVector3 value1, FixVector3 value2)
+        public static bool operator ==(FixVector4 value1, FixVector4 value2)
         {
-            return (((value1.x == value2.x) && (value1.y == value2.y)) && (value1.z == value2.z));
+            return (((value1.x == value2.x) && (value1.y == value2.y)) && (value1.z == value2.z) && (value1.w == value2.w));
         }
         #endregion
 
@@ -251,11 +228,11 @@ namespace Common
         /// <param name="value2">The second value.</param>
         /// <returns>Returns false if both values are equal, otherwise true.</returns>
         #region public static bool operator !=(JVector value1, JVector value2)
-        public static bool operator !=(FixVector3 value1, FixVector3 value2)
+        public static bool operator !=(FixVector4 value1, FixVector4 value2)
         {
-            if ((value1.x == value2.x) && (value1.y == value2.y))
+            if ((value1.x == value2.x) && (value1.y == value2.y) && (value1.z == value2.z))
             {
-                return (value1.z != value2.z);
+                return (value1.w != value2.w);
             }
             return true;
         }
@@ -269,10 +246,10 @@ namespace Common
         /// <returns>A vector with the minimum x,y and z values of both vectors.</returns>
         #region public static JVector Min(JVector value1, JVector value2)
 
-        public static FixVector3 Min(FixVector3 value1, FixVector3 value2)
+        public static FixVector4 Min(FixVector4 value1, FixVector4 value2)
         {
-            FixVector3 result;
-            FixVector3.Min(ref value1, ref value2, out result);
+            FixVector4 result;
+            FixVector4.Min(ref value1, ref value2, out result);
             return result;
         }
 
@@ -282,11 +259,12 @@ namespace Common
         /// <param name="value1">The first value.</param>
         /// <param name="value2">The second value.</param>
         /// <param name="result">A vector with the minimum x,y and z values of both vectors.</param>
-        public static void Min(ref FixVector3 value1, ref FixVector3 value2, out FixVector3 result)
+        public static void Min(ref FixVector4 value1, ref FixVector4 value2, out FixVector4 result)
         {
             result.x = (value1.x < value2.x) ? value1.x : value2.x;
             result.y = (value1.y < value2.y) ? value1.y : value2.y;
             result.z = (value1.z < value2.z) ? value1.z : value2.z;
+            result.w = (value1.w < value2.w) ? value1.w : value2.w;
         }
         #endregion
 
@@ -297,16 +275,16 @@ namespace Common
         /// <param name="value2">The second value.</param>
         /// <returns>A vector with the maximum x,y and z values of both vectors.</returns>
         #region public static JVector Max(JVector value1, JVector value2)
-        public static FixVector3 Max(FixVector3 value1, FixVector3 value2)
+        public static FixVector4 Max(FixVector4 value1, FixVector4 value2)
         {
-            FixVector3 result;
-            FixVector3.Max(ref value1, ref value2, out result);
+            FixVector4 result;
+            FixVector4.Max(ref value1, ref value2, out result);
             return result;
         }
 
-        public static Fix64 Distance(FixVector3 v1, FixVector3 v2)
+        public static Fix64 Distance(FixVector4 v1, FixVector4 v2)
         {
-            return Fix64.Sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z));
+            return Fix64.Sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y) + (v1.z - v2.z) * (v1.z - v2.z) + (v1.w - v2.w) * (v1.w - v2.w));
         }
 
         /// <summary>
@@ -315,11 +293,12 @@ namespace Common
         /// <param name="value1">The first value.</param>
         /// <param name="value2">The second value.</param>
         /// <param name="result">A vector with the maximum x,y and z values of both vectors.</param>
-        public static void Max(ref FixVector3 value1, ref FixVector3 value2, out FixVector3 result)
+        public static void Max(ref FixVector4 value1, ref FixVector4 value2, out FixVector4 result)
         {
             result.x = (value1.x > value2.x) ? value1.x : value2.x;
             result.y = (value1.y > value2.y) ? value1.y : value2.y;
             result.z = (value1.z > value2.z) ? value1.z : value2.z;
+            result.w = (value1.w > value2.w) ? value1.w : value2.w;
         }
         #endregion
 
@@ -332,6 +311,7 @@ namespace Common
             x = Fix64.Zero;
             y = Fix64.Zero;
             z = Fix64.Zero;
+            w = Fix64.Zero;
         }
         #endregion
 
@@ -362,45 +342,40 @@ namespace Common
         /// <param name="matrix">The transform matrix.</param>
         /// <returns>The transformed vector.</returns>
         #region public static JVector Transform(JVector position, JMatrix matrix)
-        public static FixVector3 Transform(FixVector3 position, FixMatrix3x3 matrix)
+        public static FixVector4 Transform(FixVector4 position, FixMatrix4x4 matrix)
         {
-            FixVector3 result;
-            FixVector3.Transform(ref position, ref matrix, out result);
+            FixVector4 result;
+            FixVector4.Transform(ref position, ref matrix, out result);
+            return result;
+        }
+
+        public static FixVector4 Transform(FixVector3 position, FixMatrix4x4 matrix)
+        {
+            FixVector4 result;
+            FixVector4.Transform(ref position, ref matrix, out result);
             return result;
         }
 
         /// <summary>
         /// Transforms a vector by the given matrix.
         /// </summary>
-        /// <param name="position">The vector to transform.</param>
+        /// <param name="vector">The vector to transform.</param>
         /// <param name="matrix">The transform matrix.</param>
         /// <param name="result">The transformed vector.</param>
-        public static void Transform(ref FixVector3 position, ref FixMatrix3x3 matrix, out FixVector3 result)
+        public static void Transform(ref FixVector3 vector, ref FixMatrix4x4 matrix, out FixVector4 result)
         {
-            Fix64 num0 = ((position.x * matrix.M11) + (position.y * matrix.M21)) + (position.z * matrix.M31);
-            Fix64 num1 = ((position.x * matrix.M12) + (position.y * matrix.M22)) + (position.z * matrix.M32);
-            Fix64 num2 = ((position.x * matrix.M13) + (position.y * matrix.M23)) + (position.z * matrix.M33);
-
-            result.x = num0;
-            result.y = num1;
-            result.z = num2;
+            result.x = vector.x * matrix.M11 + vector.y * matrix.M12 + vector.z * matrix.M13 + matrix.M14;
+            result.y = vector.x * matrix.M21 + vector.y * matrix.M22 + vector.z * matrix.M23 + matrix.M24;
+            result.z = vector.x * matrix.M31 + vector.y * matrix.M32 + vector.z * matrix.M33 + matrix.M34;
+            result.w = vector.x * matrix.M41 + vector.y * matrix.M42 + vector.z * matrix.M43 + matrix.M44;
         }
 
-        /// <summary>
-        /// Transforms a vector by the transposed of the given Matrix.
-        /// </summary>
-        /// <param name="position">The vector to transform.</param>
-        /// <param name="matrix">The transform matrix.</param>
-        /// <param name="result">The transformed vector.</param>
-        public static void TransposedTransform(ref FixVector3 position, ref FixMatrix3x3 matrix, out FixVector3 result)
+        public static void Transform(ref FixVector4 vector, ref FixMatrix4x4 matrix, out FixVector4 result)
         {
-            Fix64 num0 = ((position.x * matrix.M11) + (position.y * matrix.M12)) + (position.z * matrix.M13);
-            Fix64 num1 = ((position.x * matrix.M21) + (position.y * matrix.M22)) + (position.z * matrix.M23);
-            Fix64 num2 = ((position.x * matrix.M31) + (position.y * matrix.M32)) + (position.z * matrix.M33);
-
-            result.x = num0;
-            result.y = num1;
-            result.z = num2;
+            result.x = vector.x * matrix.M11 + vector.y * matrix.M12 + vector.z * matrix.M13 + vector.w * matrix.M14;
+            result.y = vector.x * matrix.M21 + vector.y * matrix.M22 + vector.z * matrix.M23 + vector.w * matrix.M24;
+            result.z = vector.x * matrix.M31 + vector.y * matrix.M32 + vector.z * matrix.M33 + vector.w * matrix.M34;
+            result.w = vector.x * matrix.M41 + vector.y * matrix.M42 + vector.z * matrix.M43 + vector.w * matrix.M44;
         }
         #endregion
 
@@ -411,9 +386,9 @@ namespace Common
         /// <param name="vector2">The second vector.</param>
         /// <returns>Returns the dot product of both vectors.</returns>
         #region public static Fix64 Dot(JVector vector1, JVector vector2)
-        public static Fix64 Dot(FixVector3 vector1, FixVector3 vector2)
+        public static Fix64 Dot(FixVector4 vector1, FixVector4 vector2)
         {
-            return FixVector3.Dot(ref vector1, ref vector2);
+            return FixVector4.Dot(ref vector1, ref vector2);
         }
 
 
@@ -423,45 +398,11 @@ namespace Common
         /// <param name="vector1">The first vector.</param>
         /// <param name="vector2">The second vector.</param>
         /// <returns>Returns the dot product of both vectors.</returns>
-        public static Fix64 Dot(ref FixVector3 vector1, ref FixVector3 vector2)
+        public static Fix64 Dot(ref FixVector4 vector1, ref FixVector4 vector2)
         {
-            return ((vector1.x * vector2.x) + (vector1.y * vector2.y)) + (vector1.z * vector2.z);
+            return ((vector1.x * vector2.x) + (vector1.y * vector2.y)) + (vector1.z * vector2.z) + (vector1.w * vector2.w);
         }
         #endregion
-
-        // Projects a vector onto another vector.
-        public static FixVector3 Project(FixVector3 vector, FixVector3 onNormal)
-        {
-            Fix64 sqrtMag = Dot(onNormal, onNormal);
-            if (sqrtMag < FixMath.Epsilon)
-                return zero;
-            else
-                return onNormal * Dot(vector, onNormal) / sqrtMag;
-        }
-
-        // Projects a vector onto a plane defined by a normal orthogonal to the plane.
-        public static FixVector3 ProjectOnPlane(FixVector3 vector, FixVector3 planeNormal)
-        {
-            return vector - Project(vector, planeNormal);
-        }
-
-
-        // Returns the angle in degrees between /from/ and /to/. This is always the smallest
-        public static Fix64 Angle(FixVector3 from, FixVector3 to)
-        {
-            return FixMath.Acos(FixMath.Clamp(Dot(from.normalized, to.normalized), -Fix64.ONE, Fix64.ONE)) * FixMath.Rad2Deg;
-        }
-
-        // The smaller of the two possible angles between the two vectors is returned, therefore the result will never be greater than 180 degrees or smaller than -180 degrees.
-        // If you imagine the from and to vectors as lines on a piece of paper, both originating from the same point, then the /axis/ vector would point up out of the paper.
-        // The measured angle between the two vectors would be positive in a clockwise direction and negative in an anti-clockwise direction.
-        public static Fix64 SignedAngle(FixVector3 from, FixVector3 to, FixVector3 axis)
-        {
-            FixVector3 fromNorm = from.normalized, toNorm = to.normalized;
-            Fix64 unsignedAngle = FixMath.Acos(FixMath.Clamp(Dot(fromNorm, toNorm), -Fix64.ONE, Fix64.ONE)) * FixMath.Rad2Deg;
-            Fix64 sign = FixMath.Sign(Dot(axis, Cross(fromNorm, toNorm)));
-            return unsignedAngle * sign;
-        }
 
         /// <summary>
         /// Adds two vectors.
@@ -470,10 +411,10 @@ namespace Common
         /// <param name="value2">The second vector.</param>
         /// <returns>The sum of both vectors.</returns>
         #region public static void Add(JVector value1, JVector value2)
-        public static FixVector3 Add(FixVector3 value1, FixVector3 value2)
+        public static FixVector4 Add(FixVector4 value1, FixVector4 value2)
         {
-            FixVector3 result;
-            FixVector3.Add(ref value1, ref value2, out result);
+            FixVector4 result;
+            FixVector4.Add(ref value1, ref value2, out result);
             return result;
         }
 
@@ -483,15 +424,12 @@ namespace Common
         /// <param name="value1">The first vector.</param>
         /// <param name="value2">The second vector.</param>
         /// <param name="result">The sum of both vectors.</param>
-        public static void Add(ref FixVector3 value1, ref FixVector3 value2, out FixVector3 result)
+        public static void Add(ref FixVector4 value1, ref FixVector4 value2, out FixVector4 result)
         {
-            Fix64 num0 = value1.x + value2.x;
-            Fix64 num1 = value1.y + value2.y;
-            Fix64 num2 = value1.z + value2.z;
-
-            result.x = num0;
-            result.y = num1;
-            result.z = num2;
+            result.x = value1.x + value2.x;
+            result.y = value1.y + value2.y;
+            result.z = value1.z + value2.z;
+            result.w = value1.w + value2.w;
         }
         #endregion
 
@@ -501,10 +439,10 @@ namespace Common
         /// <param name="value1">The vector to divide.</param>
         /// <param name="scaleFactor">The scale factor.</param>
         /// <returns>Returns the scaled vector.</returns>
-        public static FixVector3 Divide(FixVector3 value1, Fix64 scaleFactor)
+        public static FixVector4 Divide(FixVector4 value1, Fix64 scaleFactor)
         {
-            FixVector3 result;
-            FixVector3.Divide(ref value1, scaleFactor, out result);
+            FixVector4 result;
+            FixVector4.Divide(ref value1, scaleFactor, out result);
             return result;
         }
 
@@ -514,11 +452,12 @@ namespace Common
         /// <param name="value1">The vector to divide.</param>
         /// <param name="scaleFactor">The scale factor.</param>
         /// <param name="result">Returns the scaled vector.</param>
-        public static void Divide(ref FixVector3 value1, Fix64 scaleFactor, out FixVector3 result)
+        public static void Divide(ref FixVector4 value1, Fix64 scaleFactor, out FixVector4 result)
         {
             result.x = value1.x / scaleFactor;
             result.y = value1.y / scaleFactor;
             result.z = value1.z / scaleFactor;
+            result.w = value1.w / scaleFactor;
         }
 
         /// <summary>
@@ -528,10 +467,10 @@ namespace Common
         /// <param name="value2">The second vector.</param>
         /// <returns>The difference of both vectors.</returns>
         #region public static JVector Subtract(JVector value1, JVector value2)
-        public static FixVector3 Subtract(FixVector3 value1, FixVector3 value2)
+        public static FixVector4 Subtract(FixVector4 value1, FixVector4 value2)
         {
-            FixVector3 result;
-            FixVector3.Subtract(ref value1, ref value2, out result);
+            FixVector4 result;
+            FixVector4.Subtract(ref value1, ref value2, out result);
             return result;
         }
 
@@ -541,46 +480,12 @@ namespace Common
         /// <param name="value1">The first vector.</param>
         /// <param name="value2">The second vector.</param>
         /// <param name="result">The difference of both vectors.</param>
-        public static void Subtract(ref FixVector3 value1, ref FixVector3 value2, out FixVector3 result)
+        public static void Subtract(ref FixVector4 value1, ref FixVector4 value2, out FixVector4 result)
         {
-            Fix64 num0 = value1.x - value2.x;
-            Fix64 num1 = value1.y - value2.y;
-            Fix64 num2 = value1.z - value2.z;
-
-            result.x = num0;
-            result.y = num1;
-            result.z = num2;
-        }
-        #endregion
-
-        /// <summary>
-        /// The cross product of two vectors.
-        /// </summary>
-        /// <param name="vector1">The first vector.</param>
-        /// <param name="vector2">The second vector.</param>
-        /// <returns>The cross product of both vectors.</returns>
-        #region public static JVector Cross(JVector vector1, JVector vector2)
-        public static FixVector3 Cross(FixVector3 vector1, FixVector3 vector2)
-        {
-            FixVector3 result;
-            FixVector3.Cross(ref vector1, ref vector2, out result);
-            return result;
-        }
-
-        /// <summary>
-        /// The cross product of two vectors.
-        /// </summary>
-        /// <param name="vector1">The first vector.</param>
-        /// <param name="vector2">The second vector.</param>
-        /// <param name="result">The cross product of both vectors.</param>
-        public static void Cross(ref FixVector3 vector1, ref FixVector3 vector2, out FixVector3 result)
-        {
-            Fix64 num3 = (vector1.y * vector2.z) - (vector1.z * vector2.y);
-            Fix64 num2 = (vector1.z * vector2.x) - (vector1.x * vector2.z);
-            Fix64 num = (vector1.x * vector2.y) - (vector1.y * vector2.x);
-            result.x = num3;
-            result.y = num2;
-            result.z = num;
+            result.x = value1.x - value2.x;
+            result.y = value1.y - value2.y;
+            result.z = value1.z - value2.z;
+            result.w = value1.w - value2.w;
         }
         #endregion
 
@@ -591,7 +496,7 @@ namespace Common
         #region public override int GetHashCode()
         public override int GetHashCode()
         {
-            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode();
+            return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode() ^ w.GetHashCode();
         }
         #endregion
 
@@ -604,6 +509,7 @@ namespace Common
             this.x = -this.x;
             this.y = -this.y;
             this.z = -this.z;
+            this.w = -this.w;
         }
 
         /// <summary>
@@ -611,10 +517,10 @@ namespace Common
         /// </summary>
         /// <param name="value">The vector to inverse.</param>
         /// <returns>The negated vector.</returns>
-        public static FixVector3 Negate(FixVector3 value)
+        public static FixVector4 Negate(FixVector4 value)
         {
-            FixVector3 result;
-            FixVector3.Negate(ref value, out result);
+            FixVector4 result;
+            FixVector4.Negate(ref value, out result);
             return result;
         }
 
@@ -623,15 +529,12 @@ namespace Common
         /// </summary>
         /// <param name="value">The vector to inverse.</param>
         /// <param name="result">The negated vector.</param>
-        public static void Negate(ref FixVector3 value, out FixVector3 result)
+        public static void Negate(ref FixVector4 value, out FixVector4 result)
         {
-            Fix64 num0 = -value.x;
-            Fix64 num1 = -value.y;
-            Fix64 num2 = -value.z;
-
-            result.x = num0;
-            result.y = num1;
-            result.z = num2;
+            result.x = -value.x;
+            result.y = -value.y;
+            result.z = -value.z;
+            result.w = -value.w;
         }
         #endregion
 
@@ -641,10 +544,10 @@ namespace Common
         /// <param name="value">The vector which should be normalized.</param>
         /// <returns>A normalized vector.</returns>
         #region public static JVector Normalize(JVector value)
-        public static FixVector3 Normalize(FixVector3 value)
+        public static FixVector4 Normalize(FixVector4 value)
         {
-            FixVector3 result;
-            FixVector3.Normalize(ref value, out result);
+            FixVector4 result;
+            FixVector4.Normalize(ref value, out result);
             return result;
         }
 
@@ -653,11 +556,12 @@ namespace Common
         /// </summary>
         public void Normalize()
         {
-            Fix64 num2 = ((this.x * this.x) + (this.y * this.y)) + (this.z * this.z);
+            Fix64 num2 = ((this.x * this.x) + (this.y * this.y)) + (this.z * this.z) + (this.w * this.w);
             Fix64 num = Fix64.One / Fix64.Sqrt(num2);
             this.x *= num;
             this.y *= num;
             this.z *= num;
+            this.w *= num;
         }
 
         /// <summary>
@@ -665,13 +569,14 @@ namespace Common
         /// </summary>
         /// <param name="value">The vector which should be normalized.</param>
         /// <param name="result">A normalized vector.</param>
-        public static void Normalize(ref FixVector3 value, out FixVector3 result)
+        public static void Normalize(ref FixVector4 value, out FixVector4 result)
         {
-            Fix64 num2 = ((value.x * value.x) + (value.y * value.y)) + (value.z * value.z);
+            Fix64 num2 = ((value.x * value.x) + (value.y * value.y)) + (value.z * value.z) + (value.w * value.w);
             Fix64 num = Fix64.One / Fix64.Sqrt(num2);
             result.x = value.x * num;
             result.y = value.y * num;
             result.z = value.z * num;
+            result.w = value.w * num;
         }
         #endregion
 
@@ -682,7 +587,7 @@ namespace Common
         /// </summary>
         /// <param name="vector1">The first vector to swap with the second.</param>
         /// <param name="vector2">The second vector to swap with the first.</param>
-        public static void Swap(ref FixVector3 vector1, ref FixVector3 vector2)
+        public static void Swap(ref FixVector4 vector1, ref FixVector4 vector2)
         {
             Fix64 temp;
 
@@ -697,6 +602,10 @@ namespace Common
             temp = vector1.z;
             vector1.z = vector2.z;
             vector2.z = temp;
+
+            temp = vector1.w;
+            vector1.w = vector2.w;
+            vector2.w = temp;
         }
         #endregion
 
@@ -707,10 +616,10 @@ namespace Common
         /// <param name="scaleFactor">The scale factor.</param>
         /// <returns>Returns the multiplied vector.</returns>
         #region public static JVector Multiply(JVector value1, Fix64 scaleFactor)
-        public static FixVector3 Multiply(FixVector3 value1, Fix64 scaleFactor)
+        public static FixVector4 Multiply(FixVector4 value1, Fix64 scaleFactor)
         {
-            FixVector3 result;
-            FixVector3.Multiply(ref value1, scaleFactor, out result);
+            FixVector4 result;
+            FixVector4.Multiply(ref value1, scaleFactor, out result);
             return result;
         }
 
@@ -720,25 +629,12 @@ namespace Common
         /// <param name="value1">The vector to multiply.</param>
         /// <param name="scaleFactor">The scale factor.</param>
         /// <param name="result">Returns the multiplied vector.</param>
-        public static void Multiply(ref FixVector3 value1, Fix64 scaleFactor, out FixVector3 result)
+        public static void Multiply(ref FixVector4 value1, Fix64 scaleFactor, out FixVector4 result)
         {
             result.x = value1.x * scaleFactor;
             result.y = value1.y * scaleFactor;
             result.z = value1.z * scaleFactor;
-        }
-        #endregion
-
-        /// <summary>
-        /// Calculates the cross product of two vectors.
-        /// </summary>
-        /// <param name="value1">The first vector.</param>
-        /// <param name="value2">The second vector.</param>
-        /// <returns>Returns the cross product of both.</returns>
-        #region public static JVector operator %(JVector value1, JVector value2)
-        public static FixVector3 operator %(FixVector3 value1, FixVector3 value2)
-        {
-            FixVector3 result; FixVector3.Cross(ref value1, ref value2, out result);
-            return result;
+            result.w = value1.w * scaleFactor;
         }
         #endregion
 
@@ -749,9 +645,9 @@ namespace Common
         /// <param name="value2">The second vector.</param>
         /// <returns>Returns the dot product of both.</returns>
         #region public static Fix64 operator *(JVector value1, JVector value2)
-        public static Fix64 operator *(FixVector3 value1, FixVector3 value2)
+        public static Fix64 operator *(FixVector4 value1, FixVector4 value2)
         {
-            return FixVector3.Dot(ref value1, ref value2);
+            return FixVector4.Dot(ref value1, ref value2);
         }
         #endregion
 
@@ -762,10 +658,10 @@ namespace Common
         /// <param name="value2">The scale factor.</param>
         /// <returns>Returns the scaled vector.</returns>
         #region public static JVector operator *(JVector value1, Fix64 value2)
-        public static FixVector3 operator *(FixVector3 value1, Fix64 value2)
+        public static FixVector4 operator *(FixVector4 value1, Fix64 value2)
         {
-            FixVector3 result;
-            FixVector3.Multiply(ref value1, value2, out result);
+            FixVector4 result;
+            FixVector4.Multiply(ref value1, value2, out result);
             return result;
         }
         #endregion
@@ -777,10 +673,10 @@ namespace Common
         /// <param name="value1">The scale factor.</param>
         /// <returns>Returns the scaled vector.</returns>
         #region public static JVector operator *(Fix64 value1, JVector value2)
-        public static FixVector3 operator *(Fix64 value1, FixVector3 value2)
+        public static FixVector4 operator *(Fix64 value1, FixVector4 value2)
         {
-            FixVector3 result;
-            FixVector3.Multiply(ref value2, value1, out result);
+            FixVector4 result;
+            FixVector4.Multiply(ref value2, value1, out result);
             return result;
         }
         #endregion
@@ -792,9 +688,9 @@ namespace Common
         /// <param name="value2">The second vector.</param>
         /// <returns>The difference of both vectors.</returns>
         #region public static JVector operator -(JVector value1, JVector value2)
-        public static FixVector3 operator -(FixVector3 value1, FixVector3 value2)
+        public static FixVector4 operator -(FixVector4 value1, FixVector4 value2)
         {
-            FixVector3 result; FixVector3.Subtract(ref value1, ref value2, out result);
+            FixVector4 result; FixVector4.Subtract(ref value1, ref value2, out result);
             return result;
         }
         #endregion
@@ -806,9 +702,9 @@ namespace Common
         /// <param name="value2">The second vector.</param>
         /// <returns>The sum of both vectors.</returns>
         #region public static JVector operator +(JVector value1, JVector value2)
-        public static FixVector3 operator +(FixVector3 value1, FixVector3 value2)
+        public static FixVector4 operator +(FixVector4 value1, FixVector4 value2)
         {
-            FixVector3 result; FixVector3.Add(ref value1, ref value2, out result);
+            FixVector4 result; FixVector4.Add(ref value1, ref value2, out result);
             return result;
         }
         #endregion
@@ -819,10 +715,10 @@ namespace Common
         /// <param name="value1">The vector to divide.</param>
         /// <param name="scaleFactor">The scale factor.</param>
         /// <returns>Returns the scaled vector.</returns>
-        public static FixVector3 operator /(FixVector3 value1, Fix64 value2)
+        public static FixVector4 operator /(FixVector4 value1, Fix64 value2)
         {
-            FixVector3 result;
-            FixVector3.Divide(ref value1, value2, out result);
+            FixVector4 result;
+            FixVector4.Divide(ref value1, value2, out result);
             return result;
         }
 
@@ -831,9 +727,9 @@ namespace Common
             return new FixVector2(this.x, this.y);
         }
 
-        public FixVector4 ToFixVector4()
+        public FixVector3 ToFixVector3()
         {
-            return new FixVector4(this.x, this.y, this.z, Fix64.One);
+            return new FixVector3(this.x, this.y, this.z);
         }
     }
 }
