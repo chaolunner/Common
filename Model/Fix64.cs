@@ -8,7 +8,7 @@ namespace Common
     public partial struct Fix64 : IEquatable<Fix64>, IComparable<Fix64>
     {
         [Key(0)]
-        public long value;
+        public long RawValue;
 
         public const long MAX_VALUE = long.MaxValue;
         public const long MIN_VALUE = long.MinValue;
@@ -74,8 +74,8 @@ namespace Common
         public static int Sign(Fix64 value)
         {
             return
-                value.value < 0 ? -1 :
-                value.value > 0 ? 1 :
+                value.RawValue < 0 ? -1 :
+                value.RawValue > 0 ? 1 :
                 0;
         }
 
@@ -86,15 +86,15 @@ namespace Common
         /// </summary>
         public static Fix64 Abs(Fix64 value)
         {
-            if (value.value == MIN_VALUE)
+            if (value.RawValue == MIN_VALUE)
             {
                 return MaxValue;
             }
 
             // branchless implementation, see http://www.strchr.com/optimized_abs_function
-            var mask = value.value >> 63;
+            var mask = value.RawValue >> 63;
             Fix64 result;
-            result.value = (value.value + mask) ^ mask;
+            result.RawValue = (value.RawValue + mask) ^ mask;
             return result;
             //return new Fix64((value._serializedValue + mask) ^ mask);
         }
@@ -106,9 +106,9 @@ namespace Common
         public static Fix64 FastAbs(Fix64 value)
         {
             // branchless implementation, see http://www.strchr.com/optimized_abs_function
-            var mask = value.value >> 63;
+            var mask = value.RawValue >> 63;
             Fix64 result;
-            result.value = (value.value + mask) ^ mask;
+            result.RawValue = (value.RawValue + mask) ^ mask;
             return result;
             //return new Fix64((value._serializedValue + mask) ^ mask);
         }
@@ -121,7 +121,7 @@ namespace Common
         {
             // Just zero out the fractional part
             Fix64 result;
-            result.value = (long)((ulong)value.value & 0xFFFFFFFF00000000);
+            result.RawValue = (long)((ulong)value.RawValue & 0xFFFFFFFF00000000);
             return result;
             //return new Fix64((long)((ulong)value._serializedValue & 0xFFFFFFFF00000000));
         }
@@ -131,7 +131,7 @@ namespace Common
         /// </summary>
         public static Fix64 Ceiling(Fix64 value)
         {
-            var hasFractionalPart = (value.value & 0x00000000FFFFFFFF) != 0;
+            var hasFractionalPart = (value.RawValue & 0x00000000FFFFFFFF) != 0;
             return hasFractionalPart ? Floor(value) + One : value;
         }
 
@@ -141,7 +141,7 @@ namespace Common
         /// </summary>
         public static Fix64 Round(Fix64 value)
         {
-            var fractionalPart = value.value & 0x00000000FFFFFFFF;
+            var fractionalPart = value.RawValue & 0x00000000FFFFFFFF;
             var integralPart = Floor(value);
             if (fractionalPart < 0x80000000)
             {
@@ -153,7 +153,7 @@ namespace Common
             }
             // if number is halfway between two values, round to the nearest even number
             // this is the method used by System.Math.Round().
-            return (integralPart.value & ONE) == 0
+            return (integralPart.RawValue & ONE) == 0
                        ? integralPart
                        : integralPart + One;
         }
@@ -165,7 +165,7 @@ namespace Common
         public static Fix64 operator +(Fix64 x, Fix64 y)
         {
             Fix64 result;
-            result.value = x.value + y.value;
+            result.RawValue = x.RawValue + y.RawValue;
             return result;
             //return new Fix64(x._serializedValue + y._serializedValue);
         }
@@ -175,8 +175,8 @@ namespace Common
         /// </summary>
         public static Fix64 OverflowAdd(Fix64 x, Fix64 y)
         {
-            var xl = x.value;
-            var yl = y.value;
+            var xl = x.RawValue;
+            var yl = y.RawValue;
             var sum = xl + yl;
             // if signs of operands are equal and signs of sum and x are different
             if (((~(xl ^ yl) & (xl ^ sum)) & MIN_VALUE) != 0)
@@ -184,7 +184,7 @@ namespace Common
                 sum = xl > 0 ? MAX_VALUE : MIN_VALUE;
             }
             Fix64 result;
-            result.value = sum;
+            result.RawValue = sum;
             return result;
             //return new Fix64(sum);
         }
@@ -195,7 +195,7 @@ namespace Common
         public static Fix64 FastAdd(Fix64 x, Fix64 y)
         {
             Fix64 result;
-            result.value = x.value + y.value;
+            result.RawValue = x.RawValue + y.RawValue;
             return result;
             //return new Fix64(x._serializedValue + y._serializedValue);
         }
@@ -207,7 +207,7 @@ namespace Common
         public static Fix64 operator -(Fix64 x, Fix64 y)
         {
             Fix64 result;
-            result.value = x.value - y.value;
+            result.RawValue = x.RawValue - y.RawValue;
             return result;
             //return new Fix64(x._serializedValue - y._serializedValue);
         }
@@ -217,8 +217,8 @@ namespace Common
         /// </summary>
         public static Fix64 OverflowSub(Fix64 x, Fix64 y)
         {
-            var xl = x.value;
-            var yl = y.value;
+            var xl = x.RawValue;
+            var yl = y.RawValue;
             var diff = xl - yl;
             // if signs of operands are different and signs of sum and x are different
             if ((((xl ^ yl) & (xl ^ diff)) & MIN_VALUE) != 0)
@@ -226,7 +226,7 @@ namespace Common
                 diff = xl < 0 ? MIN_VALUE : MAX_VALUE;
             }
             Fix64 result;
-            result.value = diff;
+            result.RawValue = diff;
             return result;
             //return new Fix64(diff);
         }
@@ -236,7 +236,7 @@ namespace Common
         /// </summary>
         public static Fix64 FastSub(Fix64 x, Fix64 y)
         {
-            return new Fix64(x.value - y.value);
+            return new Fix64(x.RawValue - y.RawValue);
         }
 
         static long AddOverflowHelper(long x, long y, ref bool overflow)
@@ -249,8 +249,8 @@ namespace Common
 
         public static Fix64 operator *(Fix64 x, Fix64 y)
         {
-            var xl = x.value;
-            var yl = y.value;
+            var xl = x.RawValue;
+            var yl = y.RawValue;
 
             var xlo = (ulong)(xl & 0x00000000FFFFFFFF);
             var xhi = xl >> FRACTIONAL_PLACES;
@@ -269,7 +269,7 @@ namespace Common
 
             var sum = (long)loResult + midResult1 + midResult2 + hiResult;
             Fix64 result;// = default(Fix64);
-            result.value = sum;
+            result.RawValue = sum;
             return result;
         }
 
@@ -279,8 +279,8 @@ namespace Common
         /// </summary>
         public static Fix64 OverflowMul(Fix64 x, Fix64 y)
         {
-            var xl = x.value;
-            var yl = y.value;
+            var xl = x.RawValue;
+            var yl = y.RawValue;
 
             var xlo = (ulong)(xl & 0x00000000FFFFFFFF);
             var xhi = xl >> FRACTIONAL_PLACES;
@@ -351,7 +351,7 @@ namespace Common
                 }
             }
             Fix64 result;
-            result.value = sum;
+            result.RawValue = sum;
             return result;
             //return new Fix64(sum);
         }
@@ -362,8 +362,8 @@ namespace Common
         /// </summary>
         public static Fix64 FastMul(Fix64 x, Fix64 y)
         {
-            var xl = x.value;
-            var yl = y.value;
+            var xl = x.RawValue;
+            var yl = y.RawValue;
 
             var xlo = (ulong)(xl & 0x00000000FFFFFFFF);
             var xhi = xl >> FRACTIONAL_PLACES;
@@ -382,7 +382,7 @@ namespace Common
 
             var sum = (long)loResult + midResult1 + midResult2 + hiResult;
             Fix64 result;// = default(Fix64);
-            result.value = sum;
+            result.RawValue = sum;
             return result;
             //return new Fix64(sum);
         }
@@ -398,8 +398,8 @@ namespace Common
 
         public static Fix64 operator /(Fix64 x, Fix64 y)
         {
-            var xl = x.value;
-            var yl = y.value;
+            var xl = x.RawValue;
+            var yl = y.RawValue;
 
             if (yl == 0)
             {
@@ -453,7 +453,7 @@ namespace Common
             }
 
             Fix64 r;
-            r.value = result;
+            r.RawValue = result;
             return r;
             //return new Fix64(result);
         }
@@ -461,9 +461,9 @@ namespace Common
         public static Fix64 operator %(Fix64 x, Fix64 y)
         {
             Fix64 result;
-            result.value = x.value == MIN_VALUE & y.value == -1 ?
+            result.RawValue = x.RawValue == MIN_VALUE & y.RawValue == -1 ?
                 0 :
-                x.value % y.value;
+                x.RawValue % y.RawValue;
             return result;
             //return new Fix64(
             //    x._serializedValue == MIN_VALUE & y._serializedValue == -1 ?
@@ -478,44 +478,44 @@ namespace Common
         public static Fix64 FastMod(Fix64 x, Fix64 y)
         {
             Fix64 result;
-            result.value = x.value % y.value;
+            result.RawValue = x.RawValue % y.RawValue;
             return result;
             //return new Fix64(x._serializedValue % y._serializedValue);
         }
 
         public static Fix64 operator -(Fix64 x)
         {
-            return x.value == MIN_VALUE ? MaxValue : new Fix64(-x.value);
+            return x.RawValue == MIN_VALUE ? MaxValue : new Fix64(-x.RawValue);
         }
 
         public static bool operator ==(Fix64 x, Fix64 y)
         {
-            return x.value == y.value;
+            return x.RawValue == y.RawValue;
         }
 
         public static bool operator !=(Fix64 x, Fix64 y)
         {
-            return x.value != y.value;
+            return x.RawValue != y.RawValue;
         }
 
         public static bool operator >(Fix64 x, Fix64 y)
         {
-            return x.value > y.value;
+            return x.RawValue > y.RawValue;
         }
 
         public static bool operator <(Fix64 x, Fix64 y)
         {
-            return x.value < y.value;
+            return x.RawValue < y.RawValue;
         }
 
         public static bool operator >=(Fix64 x, Fix64 y)
         {
-            return x.value >= y.value;
+            return x.RawValue >= y.RawValue;
         }
 
         public static bool operator <=(Fix64 x, Fix64 y)
         {
-            return x.value <= y.value;
+            return x.RawValue <= y.RawValue;
         }
 
 
@@ -527,7 +527,7 @@ namespace Common
         /// </exception>
         public static Fix64 Sqrt(Fix64 x)
         {
-            var xl = x.value;
+            var xl = x.RawValue;
             if (xl < 0)
             {
                 // We cannot represent infinities like Single and Double, and Sqrt is
@@ -596,7 +596,7 @@ namespace Common
             }
 
             Fix64 r;
-            r.value = (long)result;
+            r.RawValue = (long)result;
             return r;
             //return new Fix64((long)result);
         }
@@ -610,7 +610,7 @@ namespace Common
         public static Fix64 Sin(Fix64 x)
         {
             bool flipHorizontal, flipVertical;
-            var clampedL = ClampSinValue(x.value, out flipHorizontal, out flipVertical);
+            var clampedL = ClampSinValue(x.RawValue, out flipHorizontal, out flipVertical);
             var clamped = new Fix64(clampedL);
 
             // Find the two closest values in the LUT and perform linear interpolation
@@ -626,13 +626,13 @@ namespace Common
                 SinLut.Length - 1 - (int)roundedIndex - Sign(indexError) :
                 (int)roundedIndex + Sign(indexError)]);
 
-            var delta = FastMul(indexError, FastAbs(FastSub(nearestValue, secondNearestValue))).value;
-            var interpolatedValue = nearestValue.value + (flipHorizontal ? -delta : delta);
+            var delta = FastMul(indexError, FastAbs(FastSub(nearestValue, secondNearestValue))).RawValue;
+            var interpolatedValue = nearestValue.RawValue + (flipHorizontal ? -delta : delta);
             var finalValue = flipVertical ? -interpolatedValue : interpolatedValue;
 
             //Fix64 a2 = new Fix64(finalValue);
             Fix64 a2;
-            a2.value = finalValue;
+            a2.RawValue = finalValue;
             return a2;
         }
 
@@ -644,7 +644,7 @@ namespace Common
         public static Fix64 FastSin(Fix64 x)
         {
             bool flipHorizontal, flipVertical;
-            var clampedL = ClampSinValue(x.value, out flipHorizontal, out flipVertical);
+            var clampedL = ClampSinValue(x.RawValue, out flipHorizontal, out flipVertical);
 
             // Here we use the fact that the SinLut table has a number of entries
             // equal to (PI_OVER_2 >> 15) to use the angle to index directly into it
@@ -658,7 +658,7 @@ namespace Common
                 (int)rawIndex];
 
             Fix64 result;
-            result.value = flipVertical ? -nearestValue : nearestValue;
+            result.RawValue = flipVertical ? -nearestValue : nearestValue;
             return result;
             //return new Fix64(flipVertical ? -nearestValue : nearestValue);
         }
@@ -700,7 +700,7 @@ namespace Common
         /// </summary>
         public static Fix64 Cos(Fix64 x)
         {
-            var xl = x.value;
+            var xl = x.RawValue;
             var rawAngle = xl + (xl > 0 ? -PI - PI_OVER_2 : PI_OVER_2);
             Fix64 a2 = Sin(new Fix64(rawAngle));
             return a2;
@@ -712,7 +712,7 @@ namespace Common
         /// </summary>
         public static Fix64 FastCos(Fix64 x)
         {
-            var xl = x.value;
+            var xl = x.RawValue;
             var rawAngle = xl + (xl > 0 ? -PI - PI_OVER_2 : PI_OVER_2);
             return FastSin(new Fix64(rawAngle));
         }
@@ -725,7 +725,7 @@ namespace Common
         /// </remarks>
         public static Fix64 Tan(Fix64 x)
         {
-            var clampedPi = x.value % PI;
+            var clampedPi = x.RawValue % PI;
             var flip = false;
             if (clampedPi < 0)
             {
@@ -748,8 +748,8 @@ namespace Common
             var nearestValue = new Fix64(TanLut[(int)roundedIndex]);
             var secondNearestValue = new Fix64(TanLut[(int)roundedIndex + Sign(indexError)]);
 
-            var delta = FastMul(indexError, FastAbs(FastSub(nearestValue, secondNearestValue))).value;
-            var interpolatedValue = nearestValue.value + delta;
+            var delta = FastMul(indexError, FastAbs(FastSub(nearestValue, secondNearestValue))).RawValue;
+            var interpolatedValue = nearestValue.RawValue + delta;
             var finalValue = flip ? -interpolatedValue : interpolatedValue;
             Fix64 a2 = new Fix64(finalValue);
             return a2;
@@ -815,8 +815,8 @@ namespace Common
 
         public static Fix64 Atan2(Fix64 y, Fix64 x)
         {
-            var yl = y.value;
-            var xl = x.value;
+            var yl = y.RawValue;
+            var xl = x.RawValue;
             if (xl == 0)
             {
                 if (yl > 0)
@@ -887,46 +887,46 @@ namespace Common
         public static implicit operator Fix64(long value)
         {
             Fix64 result;
-            result.value = value * ONE;
+            result.RawValue = value * ONE;
             return result;
             //return new Fix64(value * ONE);
         }
 
         public static explicit operator long(Fix64 value)
         {
-            return value.value >> FRACTIONAL_PLACES;
+            return value.RawValue >> FRACTIONAL_PLACES;
         }
 
         public static implicit operator Fix64(float value)
         {
             Fix64 result;
-            result.value = (long)(value * ONE);
+            result.RawValue = (long)(value * ONE);
             return result;
             //return new Fix64((long)(value * ONE));
         }
 
         public static explicit operator float(Fix64 value)
         {
-            return (float)value.value / ONE;
+            return (float)value.RawValue / ONE;
         }
 
         public static implicit operator Fix64(double value)
         {
             Fix64 result;
-            result.value = (long)(value * ONE);
+            result.RawValue = (long)(value * ONE);
             return result;
             //return new Fix64((long)(value * ONE));
         }
 
         public static explicit operator double(Fix64 value)
         {
-            return (double)value.value / ONE;
+            return (double)value.RawValue / ONE;
         }
 
         public static explicit operator Fix64(decimal value)
         {
             Fix64 result;
-            result.value = (long)(value * ONE);
+            result.RawValue = (long)(value * ONE);
             return result;
             //return new Fix64((long)(value * ONE));
         }
@@ -934,14 +934,14 @@ namespace Common
         public static implicit operator Fix64(int value)
         {
             Fix64 result;
-            result.value = value * ONE;
+            result.RawValue = value * ONE;
             return result;
             //return new Fix64(value * ONE);
         }
 
         public static explicit operator decimal(Fix64 value)
         {
-            return (decimal)value.value / ONE;
+            return (decimal)value.RawValue / ONE;
         }
 
         public float AsFloat()
@@ -996,22 +996,22 @@ namespace Common
 
         public override bool Equals(object obj)
         {
-            return obj is Fix64 && ((Fix64)obj).value == value;
+            return obj is Fix64 && ((Fix64)obj).RawValue == RawValue;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return RawValue.GetHashCode();
         }
 
         public bool Equals(Fix64 other)
         {
-            return value == other.value;
+            return RawValue == other.RawValue;
         }
 
         public int CompareTo(Fix64 other)
         {
-            return value.CompareTo(other.value);
+            return RawValue.CompareTo(other.RawValue);
         }
 
         public override string ToString()
@@ -1051,7 +1051,7 @@ namespace Common
                         writer.Write("            ");
                     }
                     var acos = Math.Acos(angle);
-                    var rawValue = ((Fix64)acos).value;
+                    var rawValue = ((Fix64)acos).RawValue;
                     writer.Write(string.Format("0x{0:X}L, ", rawValue));
                 }
                 writer.Write(
@@ -1080,7 +1080,7 @@ namespace Common
                         writer.Write("            ");
                     }
                     var sin = Math.Sin(angle);
-                    var rawValue = ((Fix64)sin).value;
+                    var rawValue = ((Fix64)sin).RawValue;
                     writer.Write(string.Format("0x{0:X}L, ", rawValue));
                 }
                 writer.Write(
@@ -1113,7 +1113,7 @@ namespace Common
                     {
                         tan = (double)MaxValue;
                     }
-                    var rawValue = (((decimal)tan > (decimal)MaxValue || tan < 0.0) ? MaxValue : (Fix64)tan).value;
+                    var rawValue = (((decimal)tan > (decimal)MaxValue || tan < 0.0) ? MaxValue : (Fix64)tan).RawValue;
                     writer.Write(string.Format("0x{0:X}L, ", rawValue));
                 }
                 writer.Write(
@@ -1125,23 +1125,17 @@ namespace Common
         }
 
         /// <summary>
-        /// The underlying integer representation
-        /// </summary>
-        [IgnoreMember]
-        public long RawValue { get { return value; } }
-
-        /// <summary>
         /// This is the constructor from raw value; it can only be used interally.
         /// </summary>
         /// <param name="rawValue"></param>
         public Fix64(long rawValue)
         {
-            value = rawValue;
+            RawValue = rawValue;
         }
 
         public Fix64(int value)
         {
-            this.value = value * ONE;
+            RawValue = value * ONE;
         }
     }
 }
