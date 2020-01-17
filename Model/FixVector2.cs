@@ -570,7 +570,7 @@ namespace Common
 #if UNITY_5_3_OR_NEWER || UNITY_2017_1_OR_NEWER
         public static explicit operator FixVector2(UnityEngine.Vector2 vector2)
         {
-            return new FixVector2((Fix64)vector3.x, (Fix64)vector3.y);
+            return new FixVector2((Fix64)vector2.x, (Fix64)vector2.y);
         }
 
         public static explicit operator UnityEngine.Vector2(FixVector2 vector2)

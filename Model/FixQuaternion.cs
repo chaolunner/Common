@@ -22,7 +22,7 @@ namespace Common
         }
 
         /// <summary>
-        /// Initializes a new instance of the JQuaternion structure.
+        /// Initializes a new instance of the FixQuaternion structure.
         /// </summary>
         /// <param name="x">The X component of the quaternion.</param>
         /// <param name="y">The Y component of the quaternion.</param>
@@ -96,7 +96,6 @@ namespace Common
         /// <param name="quaternion1">The first quaternion.</param>
         /// <param name="quaternion2">The second quaternion.</param>
         /// <returns>The sum of both quaternions.</returns>
-        #region public static JQuaternion Add(JQuaternion quaternion1, JQuaternion quaternion2)
         public static FixQuaternion Add(FixQuaternion quaternion1, FixQuaternion quaternion2)
         {
             FixQuaternion result;
@@ -221,7 +220,6 @@ namespace Common
             result.z = quaternion1.z + quaternion2.z;
             result.w = quaternion1.w + quaternion2.w;
         }
-        #endregion
 
         public static FixQuaternion Conjugate(FixQuaternion value)
         {
@@ -275,7 +273,6 @@ namespace Common
         /// <param name="quaternion1">The first quaternion.</param>
         /// <param name="quaternion2">The second quaternion.</param>
         /// <returns>The difference of both quaternions.</returns>
-        #region public static JQuaternion Subtract(JQuaternion quaternion1, JQuaternion quaternion2)
         public static FixQuaternion Subtract(FixQuaternion quaternion1, FixQuaternion quaternion2)
         {
             FixQuaternion result;
@@ -296,7 +293,6 @@ namespace Common
             result.z = quaternion1.z - quaternion2.z;
             result.w = quaternion1.w - quaternion2.w;
         }
-        #endregion
 
         /// <summary>
         /// Multiply two quaternions.
@@ -304,7 +300,6 @@ namespace Common
         /// <param name="quaternion1">The first quaternion.</param>
         /// <param name="quaternion2">The second quaternion.</param>
         /// <returns>The product of both quaternions.</returns>
-        #region public static JQuaternion Multiply(JQuaternion quaternion1, JQuaternion quaternion2)
         public static FixQuaternion Multiply(FixQuaternion quaternion1, FixQuaternion quaternion2)
         {
             FixQuaternion result;
@@ -337,7 +332,6 @@ namespace Common
             result.z = ((z * num) + (num2 * w)) + num10;
             result.w = (w * num) - num9;
         }
-        #endregion
 
         /// <summary>
         /// Scale a quaternion
@@ -345,7 +339,6 @@ namespace Common
         /// <param name="quaternion1">The quaternion to scale.</param>
         /// <param name="scaleFactor">Scale factor.</param>
         /// <returns>The scaled quaternion.</returns>
-        #region public static JQuaternion Multiply(JQuaternion quaternion1, Fix64 scaleFactor)
         public static FixQuaternion Multiply(FixQuaternion quaternion1, Fix64 scaleFactor)
         {
             FixQuaternion result;
@@ -366,7 +359,6 @@ namespace Common
             result.z = quaternion1.z * scaleFactor;
             result.w = quaternion1.w * scaleFactor;
         }
-        #endregion
 
         /// <summary>
         /// Sets the length of the quaternion to one.
@@ -387,8 +379,7 @@ namespace Common
         /// Creates a quaternion from a matrix.
         /// </summary>
         /// <param name="matrix">A matrix representing an orientation.</param>
-        /// <returns>JQuaternion representing an orientation.</returns>
-        #region public static JQuaternion CreateFromMatrix(JMatrix matrix)
+        /// <returns>FixQuaternion representing an orientation.</returns>
         public static FixQuaternion CreateFromMatrix(FixMatrix3x3 matrix)
         {
             FixQuaternion result;
@@ -400,7 +391,7 @@ namespace Common
         /// Creates a quaternion from a matrix.
         /// </summary>
         /// <param name="matrix">A matrix representing an orientation.</param>
-        /// <param name="result">JQuaternion representing an orientation.</param>
+        /// <param name="result">FixQuaternion representing an orientation.</param>
         public static void CreateFromMatrix(ref FixMatrix3x3 matrix, out FixQuaternion result)
         {
             Fix64 num8 = (matrix.M11 + matrix.M22) + matrix.M33;
@@ -441,7 +432,6 @@ namespace Common
                 result.w = (matrix.M12 - matrix.M21) * num2;
             }
         }
-        #endregion
 
         /// <summary>
         /// Multiply two quaternions.
@@ -449,14 +439,12 @@ namespace Common
         /// <param name="value1">The first quaternion.</param>
         /// <param name="value2">The second quaternion.</param>
         /// <returns>The product of both quaternions.</returns>
-        #region public static Fix64 operator *(JQuaternion value1, JQuaternion value2)
         public static FixQuaternion operator *(FixQuaternion value1, FixQuaternion value2)
         {
             FixQuaternion result;
             FixQuaternion.Multiply(ref value1, ref value2, out result);
             return result;
         }
-        #endregion
 
         /// <summary>
         /// Add two quaternions.
@@ -464,14 +452,12 @@ namespace Common
         /// <param name="value1">The first quaternion.</param>
         /// <param name="value2">The second quaternion.</param>
         /// <returns>The sum of both quaternions.</returns>
-        #region public static Fix64 operator +(JQuaternion value1, JQuaternion value2)
         public static FixQuaternion operator +(FixQuaternion value1, FixQuaternion value2)
         {
             FixQuaternion result;
             FixQuaternion.Add(ref value1, ref value2, out result);
             return result;
         }
-        #endregion
 
         /// <summary>
         /// Subtract two quaternions.
@@ -479,18 +465,16 @@ namespace Common
         /// <param name="value1">The first quaternion.</param>
         /// <param name="value2">The second quaternion.</param>
         /// <returns>The difference of both quaternions.</returns>
-        #region public static Fix64 operator -(JQuaternion value1, JQuaternion value2)
         public static FixQuaternion operator -(FixQuaternion value1, FixQuaternion value2)
         {
             FixQuaternion result;
             FixQuaternion.Subtract(ref value1, ref value2, out result);
             return result;
         }
-        #endregion
 
-        /**
-         *  @brief Rotates a {@link TSVector} by the {@link TSQuanternion}.
-         **/
+        /// <summary>
+        /// Rotates a FixVector3 by the FixQuaternion.
+        /// </summary>
         public static FixVector3 operator *(FixQuaternion quat, FixVector3 vec)
         {
             Fix64 num = quat.x * 2f;
@@ -517,7 +501,7 @@ namespace Common
 #if UNITY_5_3_OR_NEWER || UNITY_2017_1_OR_NEWER
         public static explicit operator FixQuaternion(UnityEngine.Quaternion quaternion)
         {
-            return new FixVector4((Fix64)quaternion.x, (Fix64)quaternion.y, (Fix64)quaternion.z, (Fix64)quaternion.w);
+            return new FixQuaternion((Fix64)quaternion.x, (Fix64)quaternion.y, (Fix64)quaternion.z, (Fix64)quaternion.w);
         }
 
         public static explicit operator UnityEngine.Quaternion(FixQuaternion quaternion)
