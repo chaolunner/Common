@@ -633,7 +633,6 @@ namespace Common
         /// <param name="axis">The axis.</param>
         /// <param name="angle">The angle.</param>
         /// <param name="result">The resulting rotation matrix</param>
-        #region public static void CreateFromAxisAngle(ref JVector axis, Fix64 angle, out JMatrix result)
         public static void CreateFromAxisAngle(ref FixVector3 axis, Fix64 angle, out FixMatrix3x3 result)
         {
             Fix64 x = axis.x;
@@ -669,8 +668,6 @@ namespace Common
             FixMatrix3x3 result; CreateFromAxisAngle(ref axis, angle, out result);
             return result;
         }
-
-        #endregion
 
         public override string ToString()
         {

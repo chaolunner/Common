@@ -514,6 +514,18 @@ namespace Common
             return result;
         }
 
+#if UNITY_5_3_OR_NEWER || UNITY_2017_1_OR_NEWER
+        public static explicit operator FixQuaternion(UnityEngine.Quaternion quaternion)
+        {
+            return new FixVector4((Fix64)quaternion.x, (Fix64)quaternion.y, (Fix64)quaternion.z, (Fix64)quaternion.w);
+        }
+
+        public static explicit operator UnityEngine.Quaternion(FixQuaternion quaternion)
+        {
+            return new UnityEngine.Quaternion((float)quaternion.x, (float)quaternion.y, (float)quaternion.z, (float)quaternion.w);
+        }
+#endif
+
         public override string ToString()
         {
             return string.Format("({0:f1}, {1:f1}, {2:f1}, {3:f1})", x.AsFloat(), y.AsFloat(), z.AsFloat(), w.AsFloat());
