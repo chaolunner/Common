@@ -1,9 +1,10 @@
 ﻿using MessagePack;
+using System;
 
 namespace Common
 {
     [MessagePackObject]
-    public struct FixMatrix3x3
+    public struct FixMatrix3x3 : IEquatable<FixMatrix3x3>
     {
         [Key(0)]
         public Fix64 M11; // 1st row vector
@@ -578,18 +579,7 @@ namespace Common
 
         public override bool Equals(object obj)
         {
-            if (!(obj is FixMatrix3x3)) return false;
-            FixMatrix3x3 other = (FixMatrix3x3)obj;
-
-            return this.M11 == other.M11 &&
-                this.M12 == other.M12 &&
-                this.M13 == other.M13 &&
-                this.M21 == other.M21 &&
-                this.M22 == other.M22 &&
-                this.M23 == other.M23 &&
-                this.M31 == other.M31 &&
-                this.M32 == other.M32 &&
-                this.M33 == other.M33;
+            return obj is FixMatrix3x3 && (FixMatrix3x3)obj == this;
         }
 
         public override int GetHashCode()
@@ -603,6 +593,11 @@ namespace Common
                 M31.GetHashCode() ^
                 M32.GetHashCode() ^
                 M33.GetHashCode();
+        }
+
+        public bool Equals(FixMatrix3x3 other)
+        {
+            return this == other;
         }
 
         /// <summary>

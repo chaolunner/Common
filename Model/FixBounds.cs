@@ -178,19 +178,17 @@ namespace Common
 
         public override bool Equals(object other)
         {
-            if (!(other is FixBounds)) return false;
-
-            return Equals((FixBounds)other);
-        }
-
-        public bool Equals(FixBounds other)
-        {
-            return Position.Equals(other.Position) && Size.Equals(other.Size);
+            return other is FixBounds && (FixBounds)other == this;
         }
 
         public override int GetHashCode()
         {
             return Position.GetHashCode() ^ (Size.GetHashCode() << 2);
+        }
+
+        public bool Equals(FixBounds other)
+        {
+            return this == other;
         }
     }
 }

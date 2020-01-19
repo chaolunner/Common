@@ -176,10 +176,10 @@ namespace Common
         /// Returns Fix64 precison distanve between two vectors
         /// </summary>
         /// <param name="value1">
-        /// A <see cref="TSVector2"/>
+        /// A <see cref="FixVector2"/>
         /// </param>
         /// <param name="value2">
-        /// A <see cref="TSVector2"/>
+        /// A <see cref="FixVector2"/>
         /// </param>
         /// <returns>
         /// A <see cref="System.Single"/>
@@ -210,44 +210,29 @@ namespace Common
             result = (value1.x - value2.x) * (value1.x - value2.x) + (value1.y - value2.y) * (value1.y - value2.y);
         }
 
-        /// <summary>
-        /// Devide first vector with the secund vector
-        /// </summary>
-        /// <param name="value1">
-        /// A <see cref="TSVector2"/>
-        /// </param>
-        /// <param name="value2">
-        /// A <see cref="TSVector2"/>
-        /// </param>
-        /// <returns>
-        /// A <see cref="TSVector2"/>
-        /// </returns>
-        public static FixVector2 Divide(FixVector2 value1, FixVector2 value2)
-        {
-            value1.x /= value2.x;
-            value1.y /= value2.y;
-            return value1;
-        }
-
         public static void Divide(ref FixVector2 value1, ref FixVector2 value2, out FixVector2 result)
         {
             result.x = value1.x / value2.x;
             result.y = value1.y / value2.y;
         }
 
-        public static FixVector2 Divide(FixVector2 value1, Fix64 divider)
+        public static FixVector2 Divide(FixVector2 value1, Fix64 scaleFactor)
         {
-            Fix64 factor = 1 / divider;
-            value1.x *= factor;
-            value1.y *= factor;
-            return value1;
+            FixVector2 result;
+            FixVector2.Divide(ref value1, scaleFactor, out result);
+            return result;
         }
 
-        public static void Divide(ref FixVector2 value1, Fix64 divider, out FixVector2 result)
+        /// <summary>
+        /// Divides a vector by a factor.
+        /// </summary>
+        /// <param name="value1">The vector to divide.</param>
+        /// <param name="scaleFactor">The scale factor.</param>
+        /// <param name="result">Returns the scaled vector.</param>
+        public static void Divide(ref FixVector2 value1, Fix64 scaleFactor, out FixVector2 result)
         {
-            Fix64 factor = 1 / divider;
-            result.x = value1.x * factor;
-            result.y = value1.y * factor;
+            result.x = value1.x / scaleFactor;
+            result.y = value1.y / scaleFactor;
         }
 
         public static Fix64 Dot(FixVector2 value1, FixVector2 value2)
@@ -265,14 +250,14 @@ namespace Common
             return (obj is FixVector2) ? this == ((FixVector2)obj) : false;
         }
 
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^ y.GetHashCode();
+        }
+
         public bool Equals(FixVector2 other)
         {
             return this == other;
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)(x + y);
         }
 
         public static FixVector2 Hermite(FixVector2 value1, FixVector2 tangent1, FixVector2 value2, FixVector2 tangent2, Fix64 amount)
@@ -479,7 +464,7 @@ namespace Common
             return Fix64.Acos(a.normalized * b.normalized) * Fix64.Rad2Deg;
         }
 
-        public FixVector3 ToTSVector()
+        public FixVector3 ToVector3()
         {
             return new FixVector3(this.x, this.y, 0);
         }
@@ -515,17 +500,17 @@ namespace Common
 
         public static FixVector2 operator +(FixVector2 value1, FixVector2 value2)
         {
-            value1.x += value2.x;
-            value1.y += value2.y;
-            return value1;
+            FixVector2 result;
+            FixVector2.Add(ref value1, ref value2, out result);
+            return result;
         }
 
 
         public static FixVector2 operator -(FixVector2 value1, FixVector2 value2)
         {
-            value1.x -= value2.x;
-            value1.y -= value2.y;
-            return value1;
+            FixVector2 result;
+            FixVector2.Subtract(ref value1, ref value2, out result);
+            return result;
         }
 
 
@@ -537,34 +522,25 @@ namespace Common
 
         public static FixVector2 operator *(FixVector2 value, Fix64 scaleFactor)
         {
-            value.x *= scaleFactor;
-            value.y *= scaleFactor;
-            return value;
+            FixVector2 result;
+            FixVector2.Multiply(ref value, scaleFactor, out result);
+            return result;
         }
 
 
         public static FixVector2 operator *(Fix64 scaleFactor, FixVector2 value)
         {
-            value.x *= scaleFactor;
-            value.y *= scaleFactor;
-            return value;
+            FixVector2 result;
+            FixVector2.Multiply(ref value, scaleFactor, out result);
+            return result;
         }
 
 
-        public static FixVector2 operator /(FixVector2 value1, FixVector2 value2)
+        public static FixVector2 operator /(FixVector2 value1, Fix64 scaleFactor)
         {
-            value1.x /= value2.x;
-            value1.y /= value2.y;
-            return value1;
-        }
-
-
-        public static FixVector2 operator /(FixVector2 value1, Fix64 divider)
-        {
-            Fix64 factor = 1 / divider;
-            value1.x *= factor;
-            value1.y *= factor;
-            return value1;
+            FixVector2 result;
+            FixVector2.Divide(ref value1, scaleFactor, out result);
+            return result;
         }
 
 #if UNITY_5_3_OR_NEWER || UNITY_2017_1_OR_NEWER

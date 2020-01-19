@@ -1,9 +1,10 @@
 ﻿using MessagePack;
+using System;
 
 namespace Common
 {
     [MessagePackObject]
-    public struct FixVector3
+    public struct FixVector3 : IEquatable<FixVector3>
     {
         private static Fix64 ZeroEpsilonSq = FixMath.Epsilon;
         internal static FixVector3 InternalZero;
@@ -200,21 +201,6 @@ namespace Common
         public override string ToString()
         {
             return string.Format("({0:f1}, {1:f1}, {2:f1})", x.AsFloat(), y.AsFloat(), z.AsFloat());
-        }
-        #endregion
-
-        /// <summary>
-        /// Tests if an object is equal to this vector.
-        /// </summary>
-        /// <param name="obj">The object to test.</param>
-        /// <returns>Returns true if they are euqal, otherwise false.</returns>
-        #region public override bool Equals(object obj)
-        public override bool Equals(object obj)
-        {
-            if (!(obj is FixVector3)) return false;
-            FixVector3 other = (FixVector3)obj;
-
-            return (((x == other.x) && (y == other.y)) && (z == other.z));
         }
         #endregion
 
@@ -565,16 +551,20 @@ namespace Common
             result.z = num;
         }
 
-        /// <summary>
-        /// Gets the hashcode of the vector.
-        /// </summary>
-        /// <returns>Returns the hashcode of the vector.</returns>
-        #region public override int GetHashCode()
+        public override bool Equals(object obj)
+        {
+            return obj is FixVector3 && (FixVector3)obj == this;
+        }
+
         public override int GetHashCode()
         {
             return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode();
         }
-        #endregion
+
+        public bool Equals(FixVector3 obj)
+        {
+            return this == obj;
+        }
 
         /// <summary>
         /// Inverses the direction of the vector.
@@ -708,7 +698,8 @@ namespace Common
         /// <returns>Returns the cross product of both.</returns>
         public static FixVector3 operator %(FixVector3 value1, FixVector3 value2)
         {
-            FixVector3 result; FixVector3.Cross(ref value1, ref value2, out result);
+            FixVector3 result; 
+            FixVector3.Cross(ref value1, ref value2, out result);
             return result;
         }
 
@@ -757,7 +748,8 @@ namespace Common
         /// <returns>The difference of both vectors.</returns>
         public static FixVector3 operator -(FixVector3 value1, FixVector3 value2)
         {
-            FixVector3 result; FixVector3.Subtract(ref value1, ref value2, out result);
+            FixVector3 result; 
+            FixVector3.Subtract(ref value1, ref value2, out result);
             return result;
         }
 
@@ -769,7 +761,8 @@ namespace Common
         /// <returns>The sum of both vectors.</returns>
         public static FixVector3 operator +(FixVector3 value1, FixVector3 value2)
         {
-            FixVector3 result; FixVector3.Add(ref value1, ref value2, out result);
+            FixVector3 result; 
+            FixVector3.Add(ref value1, ref value2, out result);
             return result;
         }
 
@@ -779,10 +772,10 @@ namespace Common
         /// <param name="value1">The vector to divide.</param>
         /// <param name="scaleFactor">The scale factor.</param>
         /// <returns>Returns the scaled vector.</returns>
-        public static FixVector3 operator /(FixVector3 value1, Fix64 value2)
+        public static FixVector3 operator /(FixVector3 value1, Fix64 scaleFactor)
         {
             FixVector3 result;
-            FixVector3.Divide(ref value1, value2, out result);
+            FixVector3.Divide(ref value1, scaleFactor, out result);
             return result;
         }
 
@@ -798,12 +791,12 @@ namespace Common
         }
 #endif
 
-        public FixVector2 ToFixVector2()
+        public FixVector2 ToVector2()
         {
             return new FixVector2(this.x, this.y);
         }
 
-        public FixVector4 ToFixVector4()
+        public FixVector4 ToVector4()
         {
             return new FixVector4(this.x, this.y, this.z, Fix64.One);
         }

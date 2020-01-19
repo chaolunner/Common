@@ -96,7 +96,7 @@ namespace Common
             Fix64 result;
             result.RawValue = (value.RawValue + mask) ^ mask;
             return result;
-            //return new Fix64((value._serializedValue + mask) ^ mask);
+            //return new Fix64((value.RawValue + mask) ^ mask);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Common
             Fix64 result;
             result.RawValue = (value.RawValue + mask) ^ mask;
             return result;
-            //return new Fix64((value._serializedValue + mask) ^ mask);
+            //return new Fix64((value.RawValue + mask) ^ mask);
         }
 
 
@@ -123,7 +123,7 @@ namespace Common
             Fix64 result;
             result.RawValue = (long)((ulong)value.RawValue & 0xFFFFFFFF00000000);
             return result;
-            //return new Fix64((long)((ulong)value._serializedValue & 0xFFFFFFFF00000000));
+            //return new Fix64((long)((ulong)value.RawValue & 0xFFFFFFFF00000000));
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Common
             Fix64 result;
             result.RawValue = x.RawValue + y.RawValue;
             return result;
-            //return new Fix64(x._serializedValue + y._serializedValue);
+            //return new Fix64(x.RawValue + y.RawValue);
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace Common
             Fix64 result;
             result.RawValue = x.RawValue + y.RawValue;
             return result;
-            //return new Fix64(x._serializedValue + y._serializedValue);
+            //return new Fix64(x.RawValue + y.RawValue);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Common
             Fix64 result;
             result.RawValue = x.RawValue - y.RawValue;
             return result;
-            //return new Fix64(x._serializedValue - y._serializedValue);
+            //return new Fix64(x.RawValue - y.RawValue);
         }
 
         /// <summary>
@@ -466,9 +466,9 @@ namespace Common
                 x.RawValue % y.RawValue;
             return result;
             //return new Fix64(
-            //    x._serializedValue == MIN_VALUE & y._serializedValue == -1 ?
+            //    x.RawValue == MIN_VALUE & y.RawValue == -1 ?
             //    0 :
-            //    x._serializedValue % y._serializedValue);
+            //    x.RawValue % y.RawValue);
         }
 
         /// <summary>
@@ -480,7 +480,7 @@ namespace Common
             Fix64 result;
             result.RawValue = x.RawValue % y.RawValue;
             return result;
-            //return new Fix64(x._serializedValue % y._serializedValue);
+            //return new Fix64(x.RawValue % y.RawValue);
         }
 
         public static Fix64 operator -(Fix64 x)
@@ -996,7 +996,7 @@ namespace Common
 
         public override bool Equals(object obj)
         {
-            return obj is Fix64 && ((Fix64)obj).RawValue == RawValue;
+            return obj is Fix64 && (Fix64)obj == this;
         }
 
         public override int GetHashCode()
@@ -1006,7 +1006,7 @@ namespace Common
 
         public bool Equals(Fix64 other)
         {
-            return RawValue == other.RawValue;
+            return this == other;
         }
 
         public int CompareTo(Fix64 other)

@@ -1,9 +1,10 @@
 ﻿using MessagePack;
+using System;
 
 namespace Common
 {
     [MessagePackObject]
-    public struct FixQuaternion
+    public struct FixQuaternion : IEquatable<FixQuaternion>
     {
         [Key(0)]
         public Fix64 x;
@@ -496,6 +497,40 @@ namespace Common
             result.z = (num8 - num11) * vec.x + (num9 + num10) * vec.y + (1f - (num4 + num5)) * vec.z;
 
             return result;
+        }
+
+        public static bool operator ==(FixQuaternion value1, FixQuaternion value2)
+        {
+            return value1.x == value2.x &&
+                value1.y == value2.y &&
+                value1.z == value2.z &&
+                value1.w == value2.w;
+        }
+
+        public static bool operator !=(FixQuaternion value1, FixQuaternion value2)
+        {
+            return value1.x != value2.x ||
+                value1.y != value2.y ||
+                value1.z != value2.z ||
+                value1.w != value2.w;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FixQuaternion && (FixQuaternion)obj == this;
+        }
+
+        public override int GetHashCode()
+        {
+            return x.GetHashCode() ^
+                y.GetHashCode() ^
+                z.GetHashCode() ^
+                w.GetHashCode();
+        }
+
+        public bool Equals(FixQuaternion other)
+        {
+            return this == other;
         }
 
 #if UNITY_5_3_OR_NEWER || UNITY_2017_1_OR_NEWER
