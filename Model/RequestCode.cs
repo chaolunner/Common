@@ -11,5 +11,6 @@
         QuitRoom,
         Input,
         Lockstep,
+        LockstepAnalysis,
     }
 }
