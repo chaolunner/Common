@@ -34,13 +34,16 @@ namespace Common
     public class KcpSession : SessionBase
     {
         private bool isConnected;
+        private SessionMode mode;
         private Kcp kcp;
         private KcpCallback kcpCallback;
         private Socket socket;
         private IAsyncReceive asyncReceive;
         private EndPoint remoteEP;
         private DateTime heartbeat;
+        private int sendFailedCount;
         private const int conv = 1;
+        private const int maxSendFailedCount = 3;
         private const double timeout = 3d;
         private const string KcpSendError = "kcp send error";
 
@@ -76,9 +79,26 @@ namespace Common
 
         private void OnOutput(Memory<byte> buffer)
         {
+            if (Mode == SessionMode.Offline)
+            {
+                kcp.Input(buffer.ToArray());
+                return;
+            }
+
             if (IsConnected)
             {
-                socket.SendTo(buffer.ToArray(), remoteEP);
+                try
+                {
+                    socket.SendTo(buffer.ToArray(), remoteEP);
+                }
+                catch
+                {
+                    sendFailedCount++;
+                }
+            }
+            if (sendFailedCount >= maxSendFailedCount)
+            {
+                isConnected = false;
             }
         }
 
@@ -89,7 +109,7 @@ namespace Common
                 try
                 {
                     heartbeat = DateTime.UtcNow;
-                    while (IsConnected)
+                    while (kcp != null)
                     {
                         kcp.Update(DateTime.UtcNow);
 
@@ -105,7 +125,7 @@ namespace Common
                                 kcpCallback.Receive(avalidData);
                             }
                         } while (len > 0);
-
+              
                         if ((DateTime.UtcNow - heartbeat).TotalSeconds >= timeout)
                         {
                             asyncReceive.EndReceive(0);
@@ -128,7 +148,7 @@ namespace Common
 
         public override void Send(byte[] buffer)
         {
-            if (IsConnected && kcp.Send(buffer) != 0)
+            if ((Mode == SessionMode.Offline || IsConnected) && kcp.Send(buffer) != 0)
             {
                 ConsoleUtility.WriteLine(KcpSendError, ConsoleColor.Red);
             }

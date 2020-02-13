@@ -41,6 +41,16 @@ namespace Common
             }
         }
 
+        private void OnReceive(byte[] buffer)
+        {
+            int count = Math.Min(asyncReceive.Size, buffer.Length);
+            for (int i = 0; i < count; i++)
+            {
+                asyncReceive.Buffer[asyncReceive.Offset + i] = buffer[i];
+            }
+            asyncReceive.EndReceive(count);
+        }
+
         public override bool IsConnected
         {
             get { return socket != null && socket.Connected; }
@@ -48,6 +58,12 @@ namespace Common
 
         public override void Send(byte[] buffer)
         {
+            if (Mode == SessionMode.Offline)
+            {
+                OnReceive(buffer);
+                return;
+            }
+
             if (IsConnected)
             {
                 socket.Send(buffer);
