@@ -5,5 +5,6 @@
         None,
         HeartBeat,
         GameStart,
+        PlayerCamera,
     }
 }
